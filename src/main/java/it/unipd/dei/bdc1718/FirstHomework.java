@@ -38,12 +38,12 @@ public class FirstHomework {
     double arithmeticMean=sum/dNumbers.count();
     System.out.println("The arithmeticMean is " + arithmeticMean);
 
-    dNumbers.map((x) -> {
+      JavaRDD <Double> newdNumbers=dNumbers.map((x) -> {
       double diff = Math.abs(arithmeticMean - x);
       return diff;
     });
 
-    for(double line:dNumbers.collect()){
+    for(double line: newdNumbers.collect()){
       System.out.println("* "+line);
     }
   }
