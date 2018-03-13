@@ -31,10 +31,12 @@ public class FirstHomework {
 
     // Create a parallel collection
     JavaRDD<Double> dNumbers = sc.parallelize(lNumbers);
+    double sum = dNumbers.map((x) -> x).reduce((x, y) -> x + y);
 
-    double sumOfSquares = dNumbers.map((x) -> x*x).reduce((x, y) -> x + y);
-    System.out.println("The sum of squares is " + sumOfSquares);
-    System.out.println("ggg");
+    System.out.println("The sum is " + sum);
+
+    double arithmeticMean=sum/dNumbers.count();
+    System.out.println("The arithmeticMean is " + arithmeticMean);
   }
 
 }
