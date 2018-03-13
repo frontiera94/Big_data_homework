@@ -37,6 +37,15 @@ public class FirstHomework {
 
     double arithmeticMean=sum/dNumbers.count();
     System.out.println("The arithmeticMean is " + arithmeticMean);
+
+    dNumbers.map((x) -> {
+      double diff = Math.abs(arithmeticMean - x);
+      return diff;
+    });
+
+    for(double line:dNumbers.collect()){
+      System.out.println("* "+line);
+    }
   }
 
 }
