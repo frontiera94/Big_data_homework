@@ -34,7 +34,7 @@ public class FirstHomework {
 
     double sumOfSquares = dNumbers.map((x) -> x*x).reduce((x, y) -> x + y);
     System.out.println("The sum of squares is " + sumOfSquares);
-
+    System.out.println("ggg");
   }
 
 }
