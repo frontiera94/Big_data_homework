@@ -101,13 +101,19 @@ public class FirstHomework {
             System.out.println("SampledNum min is " + SampledMin);
 
 
-            JavaPairRDD<Double, Double> counts = dNumbers.mapToPair((x) -> {
+            JavaPairRDD<Double, Double> dNumbersWithKeys = dNumbers.mapToPair((x) -> {
                 return new scala.Tuple2<>(x, x);
             });
             System.out.println("key are:");
-            for (scala.Tuple2 line : counts.collect()) {
+            for (scala.Tuple2 line : dNumbersWithKeys.collect()) {
                 System.out.println("*" + line);
+
             }
+          JavaPairRDD<Double, Double> dNumbersKeySorted= dNumbersWithKeys.sortByKey(false);
+          for (scala.Tuple2 line : dNumbersKeySorted.collect()) {
+            System.out.println("******" + line);
+          }
+
 
 
 
