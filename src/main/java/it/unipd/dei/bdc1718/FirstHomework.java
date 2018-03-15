@@ -8,44 +8,61 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Comparator;
+import java.io.Serializable;
+
+
+
 
 public class FirstHomework {
 
-  public static void main(String[] args) throws FileNotFoundException {
-    if (args.length == 0) {
-      throw new IllegalArgumentException("Expecting the file name on the command line");
-    }
+    public static class Minimum implements Serializable, Comparator<Double> {
+        public double compare(double a, double b) {
+            if (a < b) return a;
+            else if (a > b) return b;
+            return a;}
+        }
 
-    // Read a list of numbers from the program options
-    ArrayList<Double> lNumbers = new ArrayList<>();
-    Scanner s =  new Scanner(new File(args[0]));
-    while (s.hasNext()){
-      lNumbers.add(Double.parseDouble(s.next()));
-    }
-    s.close();
+        public static void main(String[] args) throws FileNotFoundException {
+            if (args.length == 0) {
+                throw new IllegalArgumentException("Expecting the file name on the command line");
+            }
 
-    // Setup Spark
-    SparkConf conf = new SparkConf(true)
-      .setAppName("Preliminaries");
-    JavaSparkContext sc = new JavaSparkContext(conf);
+            // Read a list of numbers from the program options
+            ArrayList<Double> lNumbers = new ArrayList<>();
+            Scanner s = new Scanner(new File(args[0]));
+            while (s.hasNext()) {
+                lNumbers.add(Double.parseDouble(s.next()));
+            }
+            s.close();
 
-    // Create a parallel collection
-    JavaRDD<Double> dNumbers = sc.parallelize(lNumbers);
-    double sum = dNumbers.map((x) -> x).reduce((x, y) -> x + y);
+            // Setup Spark
+            SparkConf conf = new SparkConf(true)
+                    .setAppName("Preliminaries");
+            JavaSparkContext sc = new JavaSparkContext(conf);
 
-    System.out.println("The sum is " + sum);
+            // Create a parallel collection
+            JavaRDD<Double> dNumbers = sc.parallelize(lNumbers);
+            double sum = dNumbers.map((x) -> x).reduce((x, y) -> x + y);
 
-    double arithmeticMean=sum/dNumbers.count();
-    System.out.println("The arithmeticMean is " + arithmeticMean);
+            System.out.println("The sum is " + sum);
 
-      JavaRDD <Double> newdNumbers=dNumbers.map((x) -> {
-      double diff = Math.abs(arithmeticMean - x);
-      return diff;
-    });
+            double arithmeticMean = sum / dNumbers.count();
+            System.out.println("The arithmeticMean is " + arithmeticMean);
 
-    for(double line: newdNumbers.collect()){
-      System.out.println("* "+line);
-    }
-  }
+            JavaRDD<Double> newdNumbers = dNumbers.map((x) -> {
+                double diff = Math.abs(arithmeticMean - x);
+                return diff;
+            });
 
+            for (double line : newdNumbers.collect()) {
+                System.out.println("*" + line);
+            }
+            double minumum = dNumbers.min(new Minimum());
+            System.out.print(minumum);
+
+
+            // JavaRDD <Double> dDiffavgs=dNumbers.map((x)->x).reduce((x,y) -> minimum.compare()  }
+        }
 }
+
