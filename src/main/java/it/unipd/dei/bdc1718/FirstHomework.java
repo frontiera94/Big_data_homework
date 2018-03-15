@@ -73,16 +73,16 @@ public class FirstHomework {
                 System.out.println("*" + line);
             }
 
-            final double[] current_min = new double[1];
+             double current_min;
 
             double min = dDiffavgs.reduce((x, y)-> {
                 if(x<y) {
-                    current_min[0] = x;
+                    return x;
                 }
                 else {
-                    current_min[0] = y;
+                    return y;
                 }
-                return current_min[0];
+
 
             });
             System.out.println("The dDiffavgs min is:" + min);
