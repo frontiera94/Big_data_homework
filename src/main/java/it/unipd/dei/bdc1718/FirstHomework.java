@@ -10,18 +10,20 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Comparator;
 import java.io.Serializable;
-
-
+import java.util.concurrent.atomic.AtomicReference;
 
 
 public class FirstHomework {
 
     public static class Minimum implements Serializable, Comparator<Double> {
-        public double compare(double a, double b) {
-            if (a < b) return a;
-            else if (a > b) return b;
-            return a;}
+        public int compare(Double a, Double b) {
+            if (a < b) return -1;
+            else if (a > b) return 1;
+            return 0;}
+
         }
+
+
 
         public static void main(String[] args) throws FileNotFoundException {
             if (args.length == 0) {
@@ -40,7 +42,7 @@ public class FirstHomework {
             SparkConf conf = new SparkConf(true)
                     .setAppName("Preliminaries");
             JavaSparkContext sc = new JavaSparkContext(conf);
-
+            //1
             // Create a parallel collection
             JavaRDD<Double> dNumbers = sc.parallelize(lNumbers);
             double sum = dNumbers.map((x) -> x).reduce((x, y) -> x + y);
@@ -49,17 +51,36 @@ public class FirstHomework {
 
             double arithmeticMean = sum / dNumbers.count();
             System.out.println("The arithmeticMean is " + arithmeticMean);
-
-            JavaRDD<Double> newdNumbers = dNumbers.map((x) -> {
+            //2
+            JavaRDD<Double> dDiffavgs = dNumbers.map((x) -> {
                 double diff = Math.abs(arithmeticMean - x);
                 return diff;
             });
 
-            for (double line : newdNumbers.collect()) {
+            for (double line : dDiffavgs.collect()) {
                 System.out.println("*" + line);
             }
-            double minumum = dNumbers.min(new Minimum());
-            System.out.print(minumum);
+            //3
+            final double[] current_min = new double[1];
+
+            double min = dDiffavgs.reduce((x, y)-> {
+                if(x<y) {
+                    current_min[0] = x;
+                }
+                else {
+                    current_min[0] = y;
+                }
+                return current_min[0];
+
+            });
+            System.out.println("The min is:" + min);
+
+
+            //4
+            double minimum = dDiffavgs.min(new Minimum());
+            System.out.print(minimum);
+
+
 
 
             // JavaRDD <Double> dDiffavgs=dNumbers.map((x)->x).reduce((x,y) -> minimum.compare()  }
