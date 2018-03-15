@@ -1,6 +1,7 @@
 package it.unipd.dei.bdc1718;
 
 import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
@@ -81,7 +82,20 @@ public class FirstHomework {
             System.out.print(minimum);
 
 
+            JavaRDD<Double> SampledNum = dNumbers.sample(true,0.75);
+            for (double line : SampledNum.collect()) {
+                System.out.println("*" + line);
+            }
+            double SampledMin = SampledNum.min(new Minimum());
+            System.out.println("Sampled min is " + SampledMin);
 
+
+            JavaPairRDD<Double, Double> counts = dNumbers.mapToPair((x) -> {
+                return new scala.Tuple2<>(x, x);
+            });
+            for (scala.Tuple2 line : counts.collect()) {
+                System.out.println("*" + line);
+            }
 
             // JavaRDD <Double> dDiffavgs=dNumbers.map((x)->x).reduce((x,y) -> minimum.compare()  }
         }
