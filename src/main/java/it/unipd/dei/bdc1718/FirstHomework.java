@@ -12,7 +12,8 @@ import java.util.Scanner;
 import java.util.Comparator;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicReference;
-
+import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 public class FirstHomework {
 
@@ -40,6 +41,9 @@ public class FirstHomework {
             s.close();
 
             // Setup Spark
+            Logger.getLogger("org").setLevel(Level.OFF);
+            Logger.getLogger("akka").setLevel(Level.OFF);
+
             SparkConf conf = new SparkConf(true)
                     .setAppName("Preliminaries");
             JavaSparkContext sc = new JavaSparkContext(conf);
@@ -48,6 +52,10 @@ public class FirstHomework {
             JavaRDD<Double> dNumbers = sc.parallelize(lNumbers);
             double sum = dNumbers.map((x) -> x).reduce((x, y) -> x + y);
 
+            System.out.println("dNumbers is: " );
+            for (double line : dNumbers.collect()) {
+                System.out.println("*" + line);
+            }
             System.out.println("The sum is " + sum);
 
             double arithmeticMean = sum / dNumbers.count();
@@ -58,10 +66,13 @@ public class FirstHomework {
                 return diff;
             });
 
+            //3
+
+            System.out.println("dDiffavgs is: " );
             for (double line : dDiffavgs.collect()) {
                 System.out.println("*" + line);
             }
-            //3
+
             final double[] current_min = new double[1];
 
             double min = dDiffavgs.reduce((x, y)-> {
@@ -74,28 +85,31 @@ public class FirstHomework {
                 return current_min[0];
 
             });
-            System.out.println("The min is:" + min);
+            System.out.println("The dDiffavgs min is:" + min);
 
 
             //4
             double minimum = dDiffavgs.min(new Minimum());
-            System.out.print(minimum);
+            System.out.println("The minimum gabriele is:" + minimum);
 
-
+            System.out.println("SampledNum is: ");
             JavaRDD<Double> SampledNum = dNumbers.sample(true,0.75);
             for (double line : SampledNum.collect()) {
                 System.out.println("*" + line);
             }
             double SampledMin = SampledNum.min(new Minimum());
-            System.out.println("Sampled min is " + SampledMin);
+            System.out.println("SampledNum min is " + SampledMin);
 
 
             JavaPairRDD<Double, Double> counts = dNumbers.mapToPair((x) -> {
                 return new scala.Tuple2<>(x, x);
             });
+            System.out.println("key are:");
             for (scala.Tuple2 line : counts.collect()) {
                 System.out.println("*" + line);
             }
+
+
 
             // JavaRDD <Double> dDiffavgs=dNumbers.map((x)->x).reduce((x,y) -> minimum.compare()  }
         }
