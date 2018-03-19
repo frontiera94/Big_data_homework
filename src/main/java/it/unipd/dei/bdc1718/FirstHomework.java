@@ -62,10 +62,7 @@ public class FirstHomework {
         double arithmeticMean = sum / dNumbers.count();
         System.out.println("The arithmeticMean is " + arithmeticMean);
         //2
-        JavaRDD<Double> dDiffavgs = dNumbers.map((x) -> {
-            double diff = Math.abs(arithmeticMean - x);
-            return diff;
-        });
+        JavaRDD<Double> dDiffavgs = dNumbers.map((x) -> Math.abs(arithmeticMean - x));
 
         //3
 
@@ -84,52 +81,46 @@ public class FirstHomework {
                 return y;
             }
         });
-        System.out.println("The dDiffavgs min is:" + min);
+        System.out.println("The minimum with reduce function is:" + min);
 
 
         //4
         double minimum = dDiffavgs.min(new Minimum());
-        System.out.println("The minimum gabriele is:" + minimum);
+        System.out.println("The minimum with min function is:" + minimum);
 
-        System.out.println("SampledNum is: ");
-        JavaRDD<Double> SampledNum = dNumbers.sample(true,0.75);
-        for (double line : SampledNum.collect()) {
-            System.out.println("*" + line);
-        }
-        double SampledMin = SampledNum.min(new Minimum());
-        System.out.println("SampledNum min is " + SampledMin);
 
 
         JavaPairRDD<Double, Double> dNumbersWithKeys = dNumbers.mapToPair((x) -> {
             return new scala.Tuple2<>(x, x);
         });
-        System.out.println("key are:");
-        for (scala.Tuple2 line : dNumbersWithKeys.collect()) {
-            System.out.println("*" + line);
-        }
+        System.out.println("the sorted dataset is:");
+
         JavaPairRDD<Double, Double> dNumbersKeySorted= dNumbersWithKeys.sortByKey(false);
         for (scala.Tuple2 line : dNumbersKeySorted.collect()) {
             System.out.println("******" + line);
         }
 
-        Double massimum= dNumbersKeySorted.first()._2;
-        System.out.println("the max is: " + massimum);
+        Double maximum= dNumbersKeySorted.first()._2;
+        System.out.println("the max is: " + maximum);
         Random ran=new Random();
         ArrayList<Double> Numbers = new ArrayList<>();
         int m=100;
         for (int i =0; i<m;i++)    {
-            double n= (double) ran.nextInt(massimum.intValue()+1);
+            double n= (double) ran.nextInt(maximum.intValue())+1;
             Numbers.add(n);
         }
-        System.out.println(Numbers);
-        JavaRDD<Double> NumbersRDD = sc.parallelize(Numbers);
-        JavaPairRDD<Double, Double> Sum = NumbersRDD.mapToPair((x) -> {
-            return new scala.Tuple2<>(x, 1.0/m); }).reduceByKey((x,y) -> x+y);
 
-        for (scala.Tuple2 line : Sum.collect()) {
+        //System.out.println(Numbers);
+
+        JavaRDD<Double> NumbersRDD = sc.parallelize(Numbers);
+        JavaPairRDD<Double, Double> dCountOccurreces = NumbersRDD.mapToPair((x) -> {
+            return new scala.Tuple2<>(x, 1.0); }).reduceByKey((x,y) -> x+y);
+
+        JavaPairRDD<Double, Double> prob= dCountOccurreces.mapValues((x)-> x/m);
+
+        for (scala.Tuple2 line : dCountOccurreces.collect()) {
             System.out.println("******" + line);
         }
-        JavaPairRDD<Double, Double> prob= Sum.mapValues((x)-> x/m);
     }
 }
 
