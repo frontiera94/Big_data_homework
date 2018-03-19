@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
+import scala.Tuple2;
 
 public class FirstHomework {
 
@@ -112,22 +113,26 @@ public class FirstHomework {
           for (scala.Tuple2 line : dNumbersKeySorted.collect()) {
             System.out.println("******" + line);
           }
+
+          Double massimum= dNumbersKeySorted.first()._2;
+          System.out.println("the max is: " + massimum);
           Random ran=new Random();
           ArrayList<Double> Numbers = new ArrayList<>();
-
-          for (int i =0; i<10;i++)    {
-              double n= (double) ran.nextInt(4)+1;
+          int m=100;
+          for (int i =0; i<m;i++)    {
+              double n= (double) ran.nextInt(massimum.intValue()+1);
               Numbers.add(n);
 
           }
-          System.out.print(Numbers);
+          System.out.println(Numbers);
             JavaRDD<Double> NumbersRDD = sc.parallelize(Numbers);
           JavaPairRDD<Double, Double> Sum = NumbersRDD.mapToPair((x) -> {
-                return new scala.Tuple2<>(x, 1.0); }).reduceByKey((x,y) -> x+y);
+                return new scala.Tuple2<>(x, 1.0/m); }).reduceByKey((x,y) -> x+y);
 
           for (scala.Tuple2 line : Sum.collect()) {
                 System.out.println("******" + line);
             }
+            JavaPairRDD<Double, Double> prob= Sum.mapValues((x)-> x/33);
 
 
         }
