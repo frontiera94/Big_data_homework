@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.Comparator;
+import java.util.*;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.log4j.Logger;
@@ -22,8 +22,7 @@ public class FirstHomework {
             if (a < b) return -1;
             else if (a > b) return 1;
             return 0;}
-
-        }
+    }
 
 
 
@@ -113,11 +112,24 @@ public class FirstHomework {
           for (scala.Tuple2 line : dNumbersKeySorted.collect()) {
             System.out.println("******" + line);
           }
+          Random ran=new Random();
+          ArrayList<Double> Numbers = new ArrayList<>();
+
+          for (int i =0; i<10;i++)    {
+              double n= (double) ran.nextInt(4)+1;
+              Numbers.add(n);
+
+          }
+          System.out.print(Numbers);
+            JavaRDD<Double> NumbersRDD = sc.parallelize(Numbers);
+          JavaPairRDD<Double, Double> Sum = NumbersRDD.mapToPair((x) -> {
+                return new scala.Tuple2<>(x, 1.0); }).reduceByKey((x,y) -> x+y);
+
+          for (scala.Tuple2 line : Sum.collect()) {
+                System.out.println("******" + line);
+            }
 
 
-
-
-            // JavaRDD <Double> dDiffavgs=dNumbers.map((x)->x).reduce((x,y) -> minimum.compare()  }
         }
 }
 
