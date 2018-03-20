@@ -100,7 +100,7 @@ public class FirstHomework {
         }
 
         //compute the minimum with reduce method
-        double current_min;
+
         double min = dDiffavgs.reduce((x, y)-> {
             if(x<y) {
                 return x;
