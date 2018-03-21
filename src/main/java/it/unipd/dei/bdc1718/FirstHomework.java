@@ -153,11 +153,19 @@ public class FirstHomework {
         }
 
         //compute and print the "probaliblity distribution" of each value in the dataset
-       //System.out.println("Probabiity distribution of each element is: ");
+        System.out.println("Probabiity distribution of each element is: ");
         JavaPairRDD<Double, Double> prob = dCountOccurreces.mapValues((x)-> x/m);
-        //for (scala.Tuple2 line : prob.collect()) {
-            //System.out.println("******" + line);
-        //}
+        for (scala.Tuple2 line : prob.collect()) {
+            System.out.println("******" + line);
+        }
+
+        double sexpectval = prob.map(tuple -> tuple._1()*tuple._2()).reduce((x,y)-> x+y);
+        System.out.println("Expected value is: " + sexpectval );
+
+        double sexpectation2 = prob.map(tuple -> Math.pow(tuple._1(),2)*tuple._2()).reduce((x,y)-> x+y);
+        double svariance = sexpectation2 - Math.pow(sexpectval,2);
+        System.out.println("Variance is: " + svariance );
+
     }
 }
 
