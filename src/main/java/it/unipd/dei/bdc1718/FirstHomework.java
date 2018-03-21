@@ -74,17 +74,17 @@ public class FirstHomework {
         double armonicMean =(double)dNumbers.count()/invsum;
         System.out.println("The armonicMean is " + armonicMean);
 
-        //copute and print the variance with the aritmethic mean
+        //compute and print the variance with the aritmethic mean
         double diffsum = dNumbers.map((x) -> Math.pow((arithmeticMean - x),2.0)).reduce((x,y) -> x+y);
         double variance = diffsum/dNumbers.count();
         System.out.println("The variance with the aritmethic mean is " + variance);
 
-        //copute and print the variance with the geometric mean
+        //compute and print the variance with the geometric mean
         double diffsumg = dNumbers.map((x) -> Math.pow((geometricMean - x),2.0)).reduce((x,y) -> x+y);
         double varianceg = diffsumg/dNumbers.count();
         System.out.println("The variance with the geometric mean is " + varianceg);
 
-        //copute and print the variance with the armonic mean
+        //compute and print the variance with the armonic mean
         double diffsuma = dNumbers.map((x) -> Math.pow((armonicMean - x),2.0)).reduce((x,y) -> x+y);
         double variancea = diffsuma/dNumbers.count();
         System.out.println("The variance with the armonic mean is " + variancea);
@@ -112,12 +112,12 @@ public class FirstHomework {
         System.out.println("The minimum with reduce function is: " + min);
 
 
-        //compute the minimum with a comparative function
+        //compute the minimum using min method
         double minimum = dDiffavgs.min(new Minimum());
         System.out.println("The minimum with min function is: " + minimum);
 
 
-        //compose couple key,value
+        //compose key-value pair
         JavaPairRDD<Double, Double> dNumbersWithKeys = dNumbers.mapToPair((x) -> {
             return new scala.Tuple2<>(x, x);
         });
@@ -130,29 +130,34 @@ public class FirstHomework {
         }
 
         //take the maximum from sorted values
-        Double maximum= dNumbersKeySorted.first()._2;
+        Double maximum = dNumbersKeySorted.first()._2;
         System.out.println("the max is: " + maximum);
 
-        //create an enlarged dataset with repetitions of value in the originary one
-        Random ran=new Random();
+        //create an enlarged dataset with repetitions of values in the originary one
+        Random ran = new Random();
         ArrayList<Double> Numbers = new ArrayList<>();
-        int m=100;
-        for (int i =0; i<m;i++)    {
+        int m = 100;
+        for (int i = 0; i < m; i++){
             double n= (double) ran.nextInt(maximum.intValue())+1;
             Numbers.add(n);
         }
         //System.out.println(Numbers);
 
-        //count the number of occurances of each values in the dataset
+        //count and print the number of occurences of each value in the dataset
         JavaRDD<Double> NumbersRDD = sc.parallelize(Numbers);
         JavaPairRDD<Double, Double> dCountOccurreces = NumbersRDD.mapToPair((x) -> {
             return new scala.Tuple2<>(x, 1.0); }).reduceByKey((x,y) -> x+y);
-
-        //compute and print the "probaliblity distribution" of each value in the dataset
-        JavaPairRDD<Double, Double> prob= dCountOccurreces.mapValues((x)-> x/m);
+        System.out.println("Number of occurences of each element is: ");
         for (scala.Tuple2 line : dCountOccurreces.collect()) {
             System.out.println("******" + line);
         }
+
+        //compute and print the "probaliblity distribution" of each value in the dataset
+       //System.out.println("Probabiity distribution of each element is: ");
+        JavaPairRDD<Double, Double> prob = dCountOccurreces.mapValues((x)-> x/m);
+        //for (scala.Tuple2 line : prob.collect()) {
+            //System.out.println("******" + line);
+        //}
     }
 }
 
