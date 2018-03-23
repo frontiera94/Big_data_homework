@@ -7,14 +7,11 @@ import org.apache.spark.api.java.JavaSparkContext;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Scanner;
 import java.util.*;
 import java.io.Serializable;
-import java.util.concurrent.atomic.AtomicReference;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
-import scala.Tuple2;
+
 
 public class FirstHomework {
 
@@ -60,6 +57,7 @@ public class FirstHomework {
         }
         System.out.println("The sum is " + sum);
 
+        ////////////////////////////
         //compute and print the arithmetic mean
         double arithmeticMean = sum / dNumbers.count();
         System.out.println("The arithmeticMean is " + arithmeticMean);
@@ -74,10 +72,10 @@ public class FirstHomework {
         double armonicMean =(double)dNumbers.count()/invsum;
         System.out.println("The armonicMean is " + armonicMean);
 
-        //compute and print the variance with the aritmethic mean
+        //compute and print the variance with the arithmetic mean
         double diffsum = dNumbers.map((x) -> Math.pow((arithmeticMean - x),2.0)).reduce((x,y) -> x+y);
         double variance = diffsum/dNumbers.count();
-        System.out.println("The variance with the aritmethic mean is " + variance);
+        System.out.println("The variance with the arithmetic mean is " + variance);
 
         //compute and print the variance with the geometric mean
         double diffsumg = dNumbers.map((x) -> Math.pow((geometricMean - x),2.0)).reduce((x,y) -> x+y);
@@ -88,7 +86,7 @@ public class FirstHomework {
         double diffsuma = dNumbers.map((x) -> Math.pow((armonicMean - x),2.0)).reduce((x,y) -> x+y);
         double variancea = diffsuma/dNumbers.count();
         System.out.println("The variance with the armonic mean is " + variancea);
-
+        ////////////////////////////
 
         //compute the difference between values and arithmetic mean
         JavaRDD<Double> dDiffavgs = dNumbers.map((x) -> Math.abs(arithmeticMean - x));
@@ -112,7 +110,7 @@ public class FirstHomework {
         System.out.println("The minimum with reduce function is: " + min);
 
 
-        //compute the minimum using min method
+        //compute the minimum using min method as defined before
         double minimum = dDiffavgs.min(new Minimum());
         System.out.println("The minimum with min function is: " + minimum);
 
@@ -122,18 +120,19 @@ public class FirstHomework {
             return new scala.Tuple2<>(x, x);
         });
 
-        //sort and print the values
+        //sort with descending order the elements in the dataset and print the values
         System.out.println("the sorted dataset is: ");
         JavaPairRDD<Double, Double> dNumbersKeySorted= dNumbersWithKeys.sortByKey(false);
         for (scala.Tuple2 line : dNumbersKeySorted.collect()) {
-            System.out.println("******" + line);
+            System.out.println("*" + line);
         }
 
-        //take the maximum from sorted values
+        //take the maximum from the sorted values
         Double maximum = dNumbersKeySorted.first()._2;
         System.out.println("the max is: " + maximum);
 
-        //create an enlarged dataset with repetitions of values in the originary one
+        //create an enlarged dataset in which the values of the original one are repeated
+        //for the purpose of calculating more significant statistics than those of the original dataset
         Random ran = new Random();
         ArrayList<Double> Numbers = new ArrayList<>();
         int m = 100;
@@ -143,28 +142,30 @@ public class FirstHomework {
         }
         //System.out.println(Numbers);
 
-        //count and print the number of occurences of each value in the dataset
+        //count and print the number of occurences of each value in the dataset.
         JavaRDD<Double> NumbersRDD = sc.parallelize(Numbers);
         JavaPairRDD<Double, Double> dCountOccurreces = NumbersRDD.mapToPair((x) -> {
             return new scala.Tuple2<>(x, 1.0); }).reduceByKey((x,y) -> x+y);
         System.out.println("Number of occurences of each element is: ");
         for (scala.Tuple2 line : dCountOccurreces.collect()) {
-            System.out.println("******" + line);
+            System.out.println("*" + line);
         }
 
-        //compute and print the "probaliblity distribution" of each value in the dataset
-        System.out.println("Probabiity distribution of each element is: ");
+        //compute and print the "relative frequency" of each value in the dataset
+        //As we can assume the numbers are iid, the relative frequency could be considered
+        //a measure of probability.
+        System.out.println("Relative frequency of each element is: ");
         JavaPairRDD<Double, Double> prob = dCountOccurreces.mapValues((x)-> x/m);
         for (scala.Tuple2 line : prob.collect()) {
-            System.out.println("******" + line);
+            System.out.println("*" + line);
         }
 
-        double sexpectval = prob.map(tuple -> tuple._1()*tuple._2()).reduce((x,y)-> x+y);
-        System.out.println("Expected value is: " + sexpectval );
+        double sExpectVal = prob.map(tuple -> tuple._1()*tuple._2()).reduce((x,y)-> x+y);
+        System.out.println("Expected value is: " + sExpectVal );
 
-        double sexpectation2 = prob.map(tuple -> Math.pow(tuple._1(),2)*tuple._2()).reduce((x,y)-> x+y);
-        double svariance = sexpectation2 - Math.pow(sexpectval,2);
-        System.out.println("Variance is: " + svariance );
+        double sExpectation2 = prob.map(tuple -> Math.pow(tuple._1(),2)*tuple._2()).reduce((x,y)-> x+y);
+        double sVariance = sExpectation2 - Math.pow(sExpectVal,2);
+        System.out.println("Variance is: " + sVariance );
 
     }
 }
