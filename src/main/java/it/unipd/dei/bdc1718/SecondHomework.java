@@ -62,10 +62,20 @@ public class SecondHomework {
         long end = System.currentTimeMillis();
         System.out.println("Elapsed time 0 " + (end - start) + " ms");
 
-        InputStreamReader isr = new InputStreamReader( System.in );
+        String input = null;
+        int number = 0;
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+            input = bufferedReader.readLine();
+            number = Integer.parseInt(input);
+        } catch (NumberFormatException ex) {
+            System.out.println("Not a number !");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         JavaPairRDD<Long,String> inversed=wordcounts.mapToPair((x)->(x.swap())).sortByKey(false);
-        System.out.println(inversed.take());
+        System.out.println(inversed.take(number));
 
         //IMPROVED WORDCOUNT 1
         start = System.currentTimeMillis();
