@@ -86,9 +86,49 @@ public class SecondHomework {
 
                 .flatMapToPair((document) -> {             // <-- Map phase
                     String[] tokens = document.split(" ");
-                    ArrayList<Tuple2<String, Long>> pairs = new ArrayList<>();
+                    HashMap<String, Tuple2<String, Long>> pairs = new HashMap<>();
                     for (String token : tokens) {
-                        pairs.add(new Tuple2<>(token, 1L));
+                        Tuple2<String, Long> tuple = pairs.get(token);
+                        if(tuple==null){
+                            tuple = new Tuple2<String,Long>(token, 1L);
+                        }
+                        else{
+                            tuple = new Tuple2<>(token, tuple._2() +1);
+                        }
+                        pairs.put(token, tuple);
+                    }
+
+                    ArrayList<Tuple2<String, Long>> pairs2 = new ArrayList<>(pairs.values());
+                    return pairs2.iterator();
+                }).groupByKey()                       // <-- Reduce phase
+                  .mapValues((it) -> {
+                        long sum = 0;
+                        for (long c : it) {
+                            sum += c;
+                        }
+
+                        return sum;
+                    });;  // <-- Reduce phase
+
+        for (Tuple2 line : wordcounts1.collect()) {
+            System.out.println("*" + line);
+        }
+
+/*
+        //IMPROVED WORDCOUNT 2
+        start = System.currentTimeMillis();
+        //JavaRDD<String> doc2=docs.repartition(16);
+        //System.out.println("part is" + docs.partitions.length());
+
+        JavaPairRDD<String, Long> wordcounts2 = doc1
+
+                .flatMapToPair((document) -> {             // <-- Map phase
+                    String[] tokens = document.split(" ");
+                    //ArrayList<Tuple2<String, Long>> pairs = new ArrayList<>();
+                    for (String token : tokens) {
+
+                        if(token==)
+                        //pairs.add(new Tuple2<>(token, 1L));
                     }
 
                     return pairs.iterator();
@@ -104,13 +144,13 @@ public class SecondHomework {
                     }
 
                     return sum;
-                });;  // <-- Reduce phase*/
+                });;  // <-- Reduce phase
 
-        for (Tuple2 line : wordcounts1.collect()) {
+        for (Tuple2 line : wordcounts2.collect()) {
             // System.out.println("*" + line);
         }
 
-
+*/
 
         end = System.currentTimeMillis();
         System.out.println("Elapsed time 1 " + (end - start) + " ms");
