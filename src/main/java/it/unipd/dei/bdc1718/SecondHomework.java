@@ -5,11 +5,9 @@ import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
-import java.io.Serializable;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 import org.apache.spark.api.java.StorageLevels;
@@ -30,11 +28,12 @@ public class SecondHomework {
                 new SparkConf(true)
                         .setAppName("Second homework");
         JavaSparkContext sc = new JavaSparkContext(configuration);
+
         JavaRDD<String> lines = sc.textFile("text-sample.txt");
         JavaRDD<String> docs = sc.textFile("text-sample.txt").cache();
         long counter=docs.count();
+        //System.out.println(counter);
 
-        /*
         //WORDCOUNT
         long start = System.currentTimeMillis();
         JavaPairRDD<String, Long> wordcounts = docs
@@ -58,19 +57,24 @@ public class SecondHomework {
                 });
 
         for (Tuple2 line : wordcounts.collect()) {
-               System.out.println("*" + line);
+            //   System.out.println("*" + line);
         }
         long end = System.currentTimeMillis();
         System.out.println("Elapsed time 0 " + (end - start) + " ms");
-        */
 
+        InputStreamReader isr = new InputStreamReader( System.in );
+
+        JavaPairRDD<Long,String> inversed=wordcounts.mapToPair((x)->(x.swap())).sortByKey(false);
+        System.out.println(inversed.take());
 
         //IMPROVED WORDCOUNT 1
-        long start = System.currentTimeMillis();
-        docs=docs.repartition(7);
-        System.out.print("dimensione"+docs);
+        start = System.currentTimeMillis();
+        JavaRDD<String> doc1=docs.repartition(16);
+        //System.out.println("part is" + docs.partitions.length());
 
-        JavaPairRDD<String, Long> wordcounts1 = docs.flatMapToPair((document) -> {             // <-- Map phase
+        JavaPairRDD<String, Long> wordcounts1 = doc1
+
+                .flatMapToPair((document) -> {             // <-- Map phase
                     String[] tokens = document.split(" ");
                     ArrayList<Tuple2<String, Long>> pairs = new ArrayList<>();
                     for (String token : tokens) {
@@ -78,23 +82,27 @@ public class SecondHomework {
                     }
 
                     return pairs.iterator();
-        })
-                .groupByKey()                       // <-- Reduce phase
-                .mapValues((it) -> {
+                });
+
+        //JavaPairRDD<String, Long> w1= wordcount1.countByKey();
+
+        //wordcounts1.groupByKey()                       // <-- Reduce phase
+              /*  .mapValues((it) -> {
                     long sum = 0;
                     for (long c : it) {
                         sum += c;
                     }
 
                     return sum;
-                });
-        // <-- Reduce phase
+                });;  // <-- Reduce phase*/
 
         for (Tuple2 line : wordcounts1.collect()) {
-            System.out.println("*" + line);
+            // System.out.println("*" + line);
         }
 
-        long end = System.currentTimeMillis();
+
+
+        end = System.currentTimeMillis();
         System.out.println("Elapsed time 1 " + (end - start) + " ms");
         System.out.println("Press enter to finish");
         System.in.read();
