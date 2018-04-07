@@ -62,6 +62,11 @@ public class SecondHomework {
         long end = System.currentTimeMillis();
         System.out.println("Wordcount is: " + (end - start) + " ms");
 
+
+
+
+        System.out.println("Insert a number: ");
+        //stamp first k value
         String input = null;
         int number = 0;
         try {
@@ -76,27 +81,15 @@ public class SecondHomework {
 
         JavaPairRDD<Long,String> inversed=wordcounts.mapToPair((x)->(x.swap())).sortByKey(false);
         System.out.println(inversed.take(number));
-        /*
+
+
+
+
+
         //IMPROVED WORDCOUNT 1
         start = System.currentTimeMillis();
-        int number_partition=16;
-        int t= (int) Math.floor(counter/number_partition);
-        ArrayList<ArrayList> beppe;
-
-                int i=0;
-                for (int j=0;j<number_partition;j++){
-                    for(int k=0; k<t;k++) {
-                        docs;
-                    }
-                }
-        //JavaRDD<String> doc1=docs.repartition(16);
-        //System.out.println("part is" + docs.partitions.length());
-        */
-
-        //JavaPairRDD<String, Long> wordcounts1 = doc1;
-        start = System.currentTimeMillis();
         JavaRDD<String> doc1 =docs.repartition(16);
-        //System.out.println("part is" + docs.partitions.length());
+
 
         JavaPairRDD<String, Long> wordcounts1 = doc1
 
@@ -129,8 +122,15 @@ public class SecondHomework {
         /*for (Tuple2 line : wordcounts1.collect()) {
             System.out.println("*" + line);
         }*/
+
         end = System.currentTimeMillis();
         System.out.println("Improved Worcount 1: " + (end - start) + " ms");
+
+
+
+
+
+
 
         //IMPROVED WORDCOUNT 2
         start = System.currentTimeMillis();
@@ -170,7 +170,6 @@ public class SecondHomework {
                     long sum = 0;
                     for (Long c : it) {
                         sum += c;
-                        //Tuple2<String, Long> w = new Tuple2<>(c._1(),sum);
                     }
 
                     return sum;
@@ -184,7 +183,6 @@ public class SecondHomework {
                     long sum = 0;
                     for (Long c : it) {
                         sum += c;
-                        //Tuple2<String, Long> w = new Tuple2<>(c._1(),sum);
                     }
 
                     return sum;
@@ -196,9 +194,9 @@ public class SecondHomework {
 
 
         end = System.currentTimeMillis();
-        for (Tuple2 line : wordcounts2.collect()) {
+        /*for (Tuple2 line : wordcounts2.collect()) {
             System.out.println("****" + line);
-        }
+        }*/
         System.out.println("Improved Wordcount 2: " + (end - start) + " ms");
         System.out.println("Press enter to finish");
         System.in.read();
