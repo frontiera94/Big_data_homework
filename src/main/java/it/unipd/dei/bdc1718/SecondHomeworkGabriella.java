@@ -34,53 +34,58 @@ public class SecondHomeworkGabriella {
         int number_partition = 16;
         int t = (int) Math.floor(counter / number_partition); // numero di elementi per ogni partizione
         Scanner s = new Scanner(new FileReader("text-sample.txt"));
-        ArrayList<String> subdocument = new ArrayList();
+        long start = System.currentTimeMillis();
         String str;
+        ArrayList<String> partitioned = new ArrayList();
         for (int j = 0; j < number_partition; j++) {
 
+            String subdocument = "";
             for (int k = 0; k < t; k++)
             {
                 str = s.nextLine();
 
-                subdocument.add(str);
-                System.out.println(subdocument.size());
+                subdocument += str;
 
             }
+            partitioned.add(subdocument);
 
-            JavaRDD<String> dsubdocuments = sc.parallelize(subdocument);
-            JavaPairRDD<String, Long> alternativo = dsubdocuments
-                    .flatMapToPair((x) -> {             // <-- Map phase
-                        String[] tokens = x.split(" ");
-                        ArrayList<Tuple2<String, Long>> pairs = new ArrayList<>();
-
-                        for (String token : tokens) {
-                            pairs.add(new Tuple2<>(token, 1L));
-
-                        }
-                        return pairs.iterator();
-
-                    }).groupByKey().mapValues((it) -> {
-                        long sum = 0;
-                        for (long c : it) {
-                            sum += c;
-                        }
-                        return sum;
-                    });
-            PrintWriter out = new PrintWriter(new FileWriter("output.txt"));
-            for (Tuple2 line : alternativo.collect()) {
-
-                System.out.println("*" + line);
-                out.println(line);
-
-            }
-            //create an print writer for writing to a file
-
-
-            //output to the file a line
-
-
-            //close the file (VERY IMPORTANT!)
-            out.close();
         }
+
+        JavaRDD<String> dPartitioned = sc.parallelize(partitioned);
+        JavaPairRDD<String, Long> alternativo = dPartitioned
+                .flatMapToPair((x) -> {             // <-- Map phase
+                    String[] tokens = x.split(" ");
+                    ArrayList<Tuple2<String, Long>> pairs = new ArrayList<>();
+
+                    for (String token : tokens) {
+                        pairs.add(new Tuple2<>(token, 1L));
+
+                    }
+                    return pairs.iterator();
+
+                }).groupByKey().mapValues((it) -> {
+                    long sum = 0;
+                    for (long c : it) {
+                        sum += c;
+                    }
+                    return sum;
+                });
+        PrintWriter out = new PrintWriter(new FileWriter("output.txt"));
+        for (Tuple2 line : alternativo.collect()) {
+
+            System.out.println("*" + line);
+            out.println(line);
+
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("Elapsed time 1 " + (end - start) + " ms");
+        //create an print writer for writing to a file
+
+
+        //output to the file a line
+
+
+        //close the file (VERY IMPORTANT!)
+        out.close();
     }
 }
