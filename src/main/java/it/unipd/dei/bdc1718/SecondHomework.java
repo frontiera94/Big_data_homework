@@ -61,7 +61,7 @@ public class SecondHomework {
                System.out.println("*" + line);
         }*/
         long end = System.currentTimeMillis();
-        System.out.println("Wordcount is: " + (end - start) + " ms");
+        System.out.println("Elapsed time 0 " + (end - start) + " ms");
 
         String input = null;
         int number = 0;
@@ -131,7 +131,7 @@ public class SecondHomework {
             System.out.println("*" + line);
         }*/
         end = System.currentTimeMillis();
-        System.out.println("Improved Worcount 1: " + (end - start) + " ms");
+        System.out.println("Elapsed time 0 " + (end - start) + " ms");
 
         //IMPROVED WORDCOUNT 2
         start = System.currentTimeMillis();
@@ -175,11 +175,12 @@ public class SecondHomework {
                     }
 
                     return sum;
-                }).flatMapToPair((pair) -> {
-                    ArrayList<Tuple2<String,Long>> endPair = new ArrayList();
-                    Tuple2<String, Long> newtupla = new Tuple2<String,Long>(pair._1()._2(), pair._2());
-                    endPair.add(newtupla);
-                    return endPair.iterator();
+                }).repartition(16).flatMapToPair((pairs) -> {
+
+                    for(Tuple2<Tuple2<String,Integer>,Long> pair : pairs) {
+                        Tuple2<String, Long> newtupla = new Tuple2<>(pair._1()._2(), pair._2());
+                    }
+                    return newtupla;
                 }).groupByKey()                 // <-- Reduce phase
                 .mapValues((it) -> {
                     long sum = 0;
@@ -193,14 +194,13 @@ public class SecondHomework {
         // <-- Reduce phase
 
 
-
+        /*for (Tuple2 line : wordcounts2.collect()) {
+             System.out.println("****" + line);
+        }*/
 
 
         end = System.currentTimeMillis();
-        for (Tuple2 line : wordcounts2.collect()) {
-            System.out.println("****" + line);
-        }
-        System.out.println("Improved Wordcount 2: " + (end - start) + " ms");
+        System.out.println("Elapsed time 1 " + (end - start) + " ms");
         System.out.println("Press enter to finish");
         System.in.read();
     }
