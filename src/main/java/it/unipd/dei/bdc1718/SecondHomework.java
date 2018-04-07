@@ -32,7 +32,10 @@ public class SecondHomework {
         JavaRDD<String> lines = sc.textFile("text-sample.txt");
         JavaRDD<String> docs = sc.textFile("text-sample.txt").cache();
         long counter = docs.count();
-        //System.out.println(counter);
+        System.out.println("The total number of words in the text is: " + counter);
+
+
+
 
         //WORDCOUNT
         long start = System.currentTimeMillis();
@@ -45,8 +48,8 @@ public class SecondHomework {
                     }
 
                     return pairs.iterator();
-                }).groupByKey()
-                // <-- Reduce phase
+
+                }).groupByKey()  // <-- Reduce phase
                 .mapValues((it) -> {
                     long sum = 0;
                     for (long c : it) {
@@ -65,6 +68,7 @@ public class SecondHomework {
 
 
 
+        //SEARCH FOR K MOST FREQUENT VALUES
         System.out.println("Insert a number: ");
         //stamp first k value
         String input = null;
@@ -85,12 +89,9 @@ public class SecondHomework {
 
 
 
-
         //IMPROVED WORDCOUNT 1
         start = System.currentTimeMillis();
         JavaRDD<String> doc1 =docs.repartition(16);
-
-
         JavaPairRDD<String, Long> wordcounts1 = doc1
 
                 .flatMapToPair((document) -> {             // <-- Map phase
@@ -109,6 +110,7 @@ public class SecondHomework {
 
                     ArrayList<Tuple2<String, Long>> pairs2 = new ArrayList<>(pairs.values());
                     return pairs2.iterator();
+
                 }).groupByKey()                       // <-- Reduce phase
                 .mapValues((it) -> {
                     long sum = 0;
@@ -117,7 +119,7 @@ public class SecondHomework {
                     }
 
                     return sum;
-                });;  // <-- Reduce phase
+                });;
 
         /*for (Tuple2 line : wordcounts1.collect()) {
             System.out.println("*" + line);
@@ -129,13 +131,9 @@ public class SecondHomework {
 
 
 
-
-
-
         //IMPROVED WORDCOUNT 2
         start = System.currentTimeMillis();
         JavaRDD<String> doc2=docs.repartition(16);
-        //System.out.println("part is" + docs.partitions.length());
         JavaPairRDD<String, Long> wordcounts2 = doc2
 
                 .flatMapToPair((document) -> {             // <-- Map phase
@@ -164,15 +162,16 @@ public class SecondHomework {
                     }
 
                     return pairs2.iterator();
-                }).groupByKey()                 // <-- Reduce phase
+
+                }).groupByKey()                 // <-- First reduce phase
                 .mapValues((it) -> {
                     long sum = 0;
                     for (Long c : it) {
                         sum += c;
                     }
-
                     return sum;
-                }).flatMapToPair((pair) -> {
+
+                }).flatMapToPair((pair) -> {      // <-- Second map phase
                     ArrayList<Tuple2<String,Long>> endPair = new ArrayList();
                     //for (Tuple2<Tuple2<Integer, String>, Long> pair : pairs ) {
                         Tuple2<String, Long> newtupla = new Tuple2<String,Long>(pair._1()._2(), pair._2());
@@ -180,7 +179,8 @@ public class SecondHomework {
                     //}
 
                     return endPair.iterator();
-                }).groupByKey()                 // <-- Reduce phase
+
+                }).groupByKey()                 // <-- Second reduce phase
                 .mapValues((it) -> {
                     long sum = 0;
                     for (Long c : it) {
@@ -189,7 +189,6 @@ public class SecondHomework {
 
                     return sum;
                 });
-        // <-- Reduce phase
 
 
         end = System.currentTimeMillis();
@@ -201,9 +200,7 @@ public class SecondHomework {
 
 
 
-
-        //REDUCE BY KEY
-
+        //REDUCE BY KEY W
         start = System.currentTimeMillis();
         JavaPairRDD<String, Long> wordcounts3 = docs
                 .flatMapToPair((document) -> {             // <-- Map phase
@@ -214,7 +211,7 @@ public class SecondHomework {
                     }
 
                     return pairs.iterator();
-                }).reduceByKey((x,y) -> x+y);
+                }).reduceByKey((x,y) -> x+y); // <-- Reduce phase
 
         end = System.currentTimeMillis();
         /*for (Tuple2 line : wordcounts3.collect()) {
@@ -223,6 +220,93 @@ public class SecondHomework {
 
         System.out.println("Reducebykey is: " + (end - start) + " ms");
 
+
+
+
+        //REDUCE BY KEY W1
+        start = System.currentTimeMillis();
+        JavaPairRDD<String, Long> wordcounts4 = doc1
+
+                .flatMapToPair((document) -> {             // <-- Map phase
+                    String[] tokens = document.split(" ");
+                    HashMap<String, Tuple2<String, Long>> pairs = new HashMap<>();
+                    for (String token : tokens) {
+                        Tuple2<String, Long> tuple = pairs.get(token);
+                        if(tuple==null){
+                            tuple = new Tuple2<String,Long>(token, 1L);
+                        }
+                        else{
+                            tuple = new Tuple2<>(token, tuple._2() +1);
+                        }
+                        pairs.put(token, tuple);
+                    }
+
+                    ArrayList<Tuple2<String, Long>> pairs2 = new ArrayList<>(pairs.values());
+                    return pairs2.iterator();
+                }).reduceByKey((x,y) -> x+y);  // <-- Reduce phase
+
+        /*for (Tuple2 line : wordcounts4.collect()) {
+            System.out.println("*" + line);
+        }*/
+        end = System.currentTimeMillis();
+        System.out.println("Reducebykey w1 is: " + (end - start) + " ms");
+
+
+
+
+        //REDUCE BY KEY W2
+        start = System.currentTimeMillis();
+        JavaPairRDD<String, Long> wordcounts5 = doc2
+
+                .flatMapToPair((document) -> {             // <--  First map phase
+                    String[] tokens = document.split(" ");
+                    HashMap<String, Tuple2<String, Long>> pairs = new HashMap<>();
+
+                    for (String token : tokens) {
+                        Tuple2<String, Long> tuple = pairs.get(token);
+                        if(tuple==null){
+                            tuple = new Tuple2<String,Long>(token, 1L);
+                        }
+                        else{
+                            tuple = new Tuple2<>(token, tuple._2() +1);
+                        }
+                        pairs.put(token, tuple);
+                    }
+                    Set k = pairs.keySet();
+                    Object[] arr = k.toArray();
+                    ArrayList<Tuple2<Tuple2<Integer, String>,Long>> pairs2 = new ArrayList();
+                    for(int i=0; i<k.size();i++) {
+                        Random ran = new Random();
+                        int key = ran.nextInt(100) + 1;
+                        Tuple2<String, Long> temp = pairs.get(arr[i]);
+                        Tuple2<Integer, String> ne = new Tuple2<>(key,temp._1());
+                        pairs2.add(new Tuple2<>(ne,temp._2()));
+                    }
+
+                    return pairs2.iterator();
+
+                }).reduceByKey((x,y) -> x+y)  // <-- First reduce phase
+                .flatMapToPair((pair) -> {    // <-- Second map phase
+                    ArrayList<Tuple2<String,Long>> endPair = new ArrayList();
+                    //for (Tuple2<Tuple2<Integer, String>, Long> pair : pairs ) {
+                    Tuple2<String, Long> newtupla = new Tuple2<String,Long>(pair._1()._2(), pair._2());
+                    endPair.add(newtupla);
+                    //}
+
+                    return endPair.iterator();
+                }).reduceByKey((x,y) -> x+y);  // <-- Second reduce phase
+
+
+        /*for (Tuple2 line : wordcounts5.collect()) {
+        System.out.println("*" + line);
+        }*/
+        end = System.currentTimeMillis();
+        System.out.println("Reducebykey w2 is: " + (end - start) + " ms");
+
+
+
         System.out.println("Press enter to finish");
         System.in.read();
-}}
+
+
+    }}
