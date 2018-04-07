@@ -4,6 +4,8 @@
     <bytecodeTargetLevel>
       <module name="Big_data_homework2_main" target="1.8" />
       <module name="Big_data_homework2_test" target="1.8" />
+      <module name="homework2_main" target="1.8" />
+      <module name="homework2_test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
