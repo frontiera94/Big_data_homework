@@ -163,7 +163,6 @@ public class SecondHomework {
                         pairs2.add(new Tuple2<>(ne,temp._2()));
                     }
 
-
                     return pairs2.iterator();
                 }).groupByKey()                 // <-- Reduce phase
                 .mapValues((it) -> {
@@ -175,8 +174,11 @@ public class SecondHomework {
                     return sum;
                 }).flatMapToPair((pair) -> {
                     ArrayList<Tuple2<String,Long>> endPair = new ArrayList();
-                    Tuple2<String, Long> newtupla = new Tuple2<String,Long>(pair._1()._2(), pair._2());
-                    endPair.add(newtupla);
+                    //for (Tuple2<Tuple2<Integer, String>, Long> pair : pairs ) {
+                        Tuple2<String, Long> newtupla = new Tuple2<String,Long>(pair._1()._2(), pair._2());
+                        endPair.add(newtupla);
+                    //}
+
                     return endPair.iterator();
                 }).groupByKey()                 // <-- Reduce phase
                 .mapValues((it) -> {
@@ -190,14 +192,37 @@ public class SecondHomework {
         // <-- Reduce phase
 
 
-
-
-
         end = System.currentTimeMillis();
         /*for (Tuple2 line : wordcounts2.collect()) {
             System.out.println("****" + line);
         }*/
         System.out.println("Improved Wordcount 2: " + (end - start) + " ms");
+
+
+
+
+
+        //REDUCE BY KEY
+
+        start = System.currentTimeMillis();
+        JavaPairRDD<String, Long> wordcounts3 = docs
+                .flatMapToPair((document) -> {             // <-- Map phase
+                    String[] tokens = document.split(" ");
+                    ArrayList<Tuple2<String, Long>> pairs = new ArrayList<>();
+                    for (String token : tokens) {
+                        pairs.add(new Tuple2<>(token, 1L));
+                    }
+
+                    return pairs.iterator();
+                }).reduceByKey((x,y) -> x+y);
+
+        end = System.currentTimeMillis();
+        /*for (Tuple2 line : wordcounts3.collect()) {
+               System.out.println("*" + line);
+        }*/
+
+        System.out.println("Reducebykey is: " + (end - start) + " ms");
+
         System.out.println("Press enter to finish");
         System.in.read();
 }}
