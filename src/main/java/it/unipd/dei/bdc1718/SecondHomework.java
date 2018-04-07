@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 import org.apache.spark.api.java.StorageLevels;
 import scala.Tuple2;
+import scala.Tuple3;
 
 
 public class SecondHomework {
@@ -31,7 +32,7 @@ public class SecondHomework {
 
         JavaRDD<String> lines = sc.textFile("text-sample.txt");
         JavaRDD<String> docs = sc.textFile("text-sample.txt").cache();
-        long counter=docs.count();
+        long counter = docs.count();
         //System.out.println(counter);
 
         //WORDCOUNT
@@ -45,8 +46,8 @@ public class SecondHomework {
                     }
 
                     return pairs.iterator();
-                })
-                .groupByKey()                       // <-- Reduce phase
+                }).groupByKey()
+                // <-- Reduce phase
                 .mapValues((it) -> {
                     long sum = 0;
                     for (long c : it) {
@@ -56,9 +57,9 @@ public class SecondHomework {
                     return sum;
                 });
 
-        for (Tuple2 line : wordcounts.collect()) {
-            //   System.out.println("*" + line);
-        }
+        /*for (Tuple2 line : wordcounts.collect()) {
+               System.out.println("*" + line);
+        }*/
         long end = System.currentTimeMillis();
         System.out.println("Elapsed time 0 " + (end - start) + " ms");
 
@@ -76,10 +77,26 @@ public class SecondHomework {
 
         JavaPairRDD<Long,String> inversed=wordcounts.mapToPair((x)->(x.swap())).sortByKey(false);
         System.out.println(inversed.take(number));
-
+        /*
         //IMPROVED WORDCOUNT 1
         start = System.currentTimeMillis();
-        JavaRDD<String> doc1=docs.repartition(16);
+        int number_partition=16;
+        int t= (int) Math.floor(counter/number_partition);
+        ArrayList<ArrayList> beppe;
+
+                int i=0;
+                for (int j=0;j<number_partition;j++){
+                    for(int k=0; k<t;k++) {
+                        docs;
+                    }
+                }
+        //JavaRDD<String> doc1=docs.repartition(16);
+        //System.out.println("part is" + docs.partitions.length());
+        */
+
+        //JavaPairRDD<String, Long> wordcounts1 = doc1;
+        start = System.currentTimeMillis();
+        JavaRDD<String> doc1 =docs.repartition(16);
         //System.out.println("part is" + docs.partitions.length());
 
         JavaPairRDD<String, Long> wordcounts1 = doc1
@@ -101,43 +118,7 @@ public class SecondHomework {
                     ArrayList<Tuple2<String, Long>> pairs2 = new ArrayList<>(pairs.values());
                     return pairs2.iterator();
                 }).groupByKey()                       // <-- Reduce phase
-                  .mapValues((it) -> {
-                        long sum = 0;
-                        for (long c : it) {
-                            sum += c;
-                        }
-
-                        return sum;
-                    });;  // <-- Reduce phase
-
-        for (Tuple2 line : wordcounts1.collect()) {
-            System.out.println("*" + line);
-        }
-
-/*
-        //IMPROVED WORDCOUNT 2
-        start = System.currentTimeMillis();
-        //JavaRDD<String> doc2=docs.repartition(16);
-        //System.out.println("part is" + docs.partitions.length());
-
-        JavaPairRDD<String, Long> wordcounts2 = doc1
-
-                .flatMapToPair((document) -> {             // <-- Map phase
-                    String[] tokens = document.split(" ");
-                    //ArrayList<Tuple2<String, Long>> pairs = new ArrayList<>();
-                    for (String token : tokens) {
-
-                        if(token==)
-                        //pairs.add(new Tuple2<>(token, 1L));
-                    }
-
-                    return pairs.iterator();
-                });
-
-        //JavaPairRDD<String, Long> w1= wordcount1.countByKey();
-
-        //wordcounts1.groupByKey()                       // <-- Reduce phase
-              /*  .mapValues((it) -> {
+                .mapValues((it) -> {
                     long sum = 0;
                     for (long c : it) {
                         sum += c;
@@ -146,11 +127,77 @@ public class SecondHomework {
                     return sum;
                 });;  // <-- Reduce phase
 
-        for (Tuple2 line : wordcounts2.collect()) {
-            // System.out.println("*" + line);
-        }
+        /*for (Tuple2 line : wordcounts1.collect()) {
+            System.out.println("*" + line);
+        }*/
+        end = System.currentTimeMillis();
+        System.out.println("Elapsed time 0 " + (end - start) + " ms");
 
-*/
+        //IMPROVED WORDCOUNT 2
+        start = System.currentTimeMillis();
+        JavaRDD<String> doc2=docs.repartition(16);
+        //System.out.println("part is" + docs.partitions.length());
+        JavaPairRDD<String, Long> wordcounts2 = doc2
+
+                .flatMapToPair((document) -> {             // <-- Map phase
+                    String[] tokens = document.split(" ");
+                    HashMap<String, Tuple2<String, Long>> pairs = new HashMap<>();
+
+                    for (String token : tokens) {
+                        Tuple2<String, Long> tuple = pairs.get(token);
+                        if(tuple==null){
+                            tuple = new Tuple2<String,Long>(token, 1L);
+                        }
+                        else{
+                            tuple = new Tuple2<>(token, tuple._2() +1);
+                        }
+                        pairs.put(token, tuple);
+                    }
+                    Set k = pairs.keySet();
+                    Object[] arr = k.toArray();
+                    ArrayList<Tuple2<Tuple2<Integer, String>,Long>> pairs2 = new ArrayList();
+                    for(int i=0; i<k.size();i++) {
+                        Random ran = new Random();
+                        int key = ran.nextInt(100) + 1;
+                        Tuple2<String, Long> temp = pairs.get(arr[i]);
+                        Tuple2<Integer, String> ne = new Tuple2<>(key,temp._1());
+                        pairs2.add(new Tuple2<>(ne,temp._2()));
+                    }
+
+
+                    return pairs2.iterator();
+                }).groupByKey()                 // <-- Reduce phase
+                .mapValues((it) -> {
+                    long sum = 0;
+                    for (Long c : it) {
+                        sum += c;
+                        //Tuple2<String, Long> w = new Tuple2<>(c._1(),sum);
+                    }
+
+                    return sum;
+                }).repartition(16).flatMapToPair((pairs) -> {
+
+                    for(Tuple2<Tuple2<String,Integer>,Long> pair : pairs) {
+                        Tuple2<String, Long> newtupla = new Tuple2<>(pair._1()._2(), pair._2());
+                    }
+                    return newtupla;
+                }).groupByKey()                 // <-- Reduce phase
+                .mapValues((it) -> {
+                    long sum = 0;
+                    for (Long c : it) {
+                        sum += c;
+                        //Tuple2<String, Long> w = new Tuple2<>(c._1(),sum);
+                    }
+
+                    return sum;
+                });
+        // <-- Reduce phase
+
+
+        /*for (Tuple2 line : wordcounts2.collect()) {
+             System.out.println("****" + line);
+        }*/
+
 
         end = System.currentTimeMillis();
         System.out.println("Elapsed time 1 " + (end - start) + " ms");
