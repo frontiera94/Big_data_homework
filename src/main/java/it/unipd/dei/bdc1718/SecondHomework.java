@@ -58,7 +58,7 @@ public class SecondHomework {
 
                     return sum;
                 });
-
+        wordcounts.count();
         /*for (Tuple2 line : wordcounts.collect()) {
                System.out.println("*" + line);
         }*/
@@ -66,7 +66,7 @@ public class SecondHomework {
         System.out.println("Wordcount is: " + (end - start) + " ms");
 
 
-
+/*
 
         //SEARCH FOR K MOST FREQUENT VALUES
         System.out.println("Insert a number: ");
@@ -86,12 +86,12 @@ public class SecondHomework {
         JavaPairRDD<Long,String> inversed=wordcounts.mapToPair((x)->(x.swap())).sortByKey(false);
         System.out.println(inversed.take(number));
 
-
+*/
 
 
         //IMPROVED WORDCOUNT 1
-        start = System.currentTimeMillis();
         JavaRDD<String> doc1 =docs.repartition(16);
+        start = System.currentTimeMillis();
         JavaPairRDD<String, Long> wordcounts1 = doc1
 
                 .flatMapToPair((document) -> {             // <-- Map phase
@@ -124,7 +124,7 @@ public class SecondHomework {
         /*for (Tuple2 line : wordcounts1.collect()) {
             System.out.println("*" + line);
         }*/
-
+        wordcounts1.count();
         end = System.currentTimeMillis();
         System.out.println("Improved Worcount 1: " + (end - start) + " ms");
 
@@ -132,34 +132,30 @@ public class SecondHomework {
 
 
         //IMPROVED WORDCOUNT 2
-        start = System.currentTimeMillis();
         JavaRDD<String> doc2=docs.repartition(16);
+        start = System.currentTimeMillis();
         JavaPairRDD<String, Long> wordcounts2 = doc2
 
                 .flatMapToPair((document) -> {             // <-- Map phase
                     String[] tokens = document.split(" ");
-                    HashMap<String, Tuple2<String, Long>> pairs = new HashMap<>();
-
+                    HashMap<String, Tuple2<Tuple2<Integer,String>, Long>> pairs = new HashMap<>();
+                    Random ran = new Random();
+                    int key;
                     for (String token : tokens) {
-                        Tuple2<String, Long> tuple = pairs.get(token);
+                        Tuple2<Tuple2<Integer,String>, Long> tuple = pairs.get(token);
                         if(tuple==null){
-                            tuple = new Tuple2<String,Long>(token, 1L);
+                            Tuple2<Integer, String> ne = new Tuple2<>(key = ran.nextInt(100) + 1,token);
+                            tuple = new Tuple2<Tuple2<Integer,String>,Long>(ne, 1L);
+
                         }
                         else{
-                            tuple = new Tuple2<>(token, tuple._2() +1);
+                            Tuple2<Integer, String> ne = new Tuple2<Integer,String>(tuple._1._1(),tuple._1._2());
+                            tuple = new Tuple2<Tuple2<Integer,String>,Long>(ne, tuple._2() +1);
                         }
                         pairs.put(token, tuple);
                     }
-                    Set k = pairs.keySet();
-                    Object[] arr = k.toArray();
-                    ArrayList<Tuple2<Tuple2<Integer, String>,Long>> pairs2 = new ArrayList();
-                    for(int i=0; i<k.size();i++) {
-                        Random ran = new Random();
-                        int key = ran.nextInt(100) + 1;
-                        Tuple2<String, Long> temp = pairs.get(arr[i]);
-                        Tuple2<Integer, String> ne = new Tuple2<>(key,temp._1());
-                        pairs2.add(new Tuple2<>(ne,temp._2()));
-                    }
+                    ArrayList<Tuple2<Tuple2<Integer,String>,Long>> pairs2 = new ArrayList();
+                    pairs2.addAll(pairs.values());
 
                     return pairs2.iterator();
 
@@ -190,7 +186,7 @@ public class SecondHomework {
                     return sum;
                 });
 
-
+        wordcounts2.count();
         end = System.currentTimeMillis();
         /*for (Tuple2 line : wordcounts2.collect()) {
             System.out.println("****" + line);
@@ -212,7 +208,7 @@ public class SecondHomework {
 
                     return pairs.iterator();
                 }).reduceByKey((x,y) -> x+y); // <-- Reduce phase
-
+        wordcounts3.count();
         end = System.currentTimeMillis();
         /*for (Tuple2 line : wordcounts3.collect()) {
                System.out.println("*" + line);
@@ -248,6 +244,7 @@ public class SecondHomework {
         /*for (Tuple2 line : wordcounts4.collect()) {
             System.out.println("*" + line);
         }*/
+        wordcounts4.count();
         end = System.currentTimeMillis();
         System.out.println("Reducebykey w1 is: " + (end - start) + " ms");
 
@@ -260,28 +257,24 @@ public class SecondHomework {
 
                 .flatMapToPair((document) -> {             // <--  First map phase
                     String[] tokens = document.split(" ");
-                    HashMap<String, Tuple2<String, Long>> pairs = new HashMap<>();
-
+                    HashMap<String, Tuple2<Tuple2<Integer,String>, Long>> pairs = new HashMap<>();
+                    Random ran = new Random();
+                    int key;
                     for (String token : tokens) {
-                        Tuple2<String, Long> tuple = pairs.get(token);
+                        Tuple2<Tuple2<Integer,String>, Long> tuple = pairs.get(token);
                         if(tuple==null){
-                            tuple = new Tuple2<String,Long>(token, 1L);
+                            Tuple2<Integer, String> ne = new Tuple2<>(key = ran.nextInt(100) + 1,token);
+                            tuple = new Tuple2<Tuple2<Integer,String>,Long>(ne, 1L);
+
                         }
                         else{
-                            tuple = new Tuple2<>(token, tuple._2() +1);
+                            Tuple2<Integer, String> ne = new Tuple2<Integer,String>(tuple._1._1(),tuple._1._2());
+                            tuple = new Tuple2<Tuple2<Integer,String>,Long>(ne, tuple._2() +1);
                         }
                         pairs.put(token, tuple);
                     }
-                    Set k = pairs.keySet();
-                    Object[] arr = k.toArray();
-                    ArrayList<Tuple2<Tuple2<Integer, String>,Long>> pairs2 = new ArrayList();
-                    for(int i=0; i<k.size();i++) {
-                        Random ran = new Random();
-                        int key = ran.nextInt(100) + 1;
-                        Tuple2<String, Long> temp = pairs.get(arr[i]);
-                        Tuple2<Integer, String> ne = new Tuple2<>(key,temp._1());
-                        pairs2.add(new Tuple2<>(ne,temp._2()));
-                    }
+                    ArrayList<Tuple2<Tuple2<Integer,String>,Long>> pairs2 = new ArrayList();
+                    pairs2.addAll(pairs.values());
 
                     return pairs2.iterator();
 
@@ -300,6 +293,7 @@ public class SecondHomework {
         /*for (Tuple2 line : wordcounts5.collect()) {
         System.out.println("*" + line);
         }*/
+        wordcounts5.count();
         end = System.currentTimeMillis();
         System.out.println("Reducebykey w2 is: " + (end - start) + " ms");
 
