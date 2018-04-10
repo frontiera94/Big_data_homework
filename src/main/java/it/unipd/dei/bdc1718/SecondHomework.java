@@ -86,18 +86,23 @@ public class SecondHomework {
                     // create an Hashset of key-value pairs of type (word, (word, # of occurences of the word in a document))
                     HashMap<String, Tuple2<String, Long>> pairs = new HashMap<>();
                     for (String token : tokens) {
-                        Tuple2<String, Long> tuple = pairs.get(token);
+
                         // if the word is not already in the hashset: add new key-value pair (word,1)
-                        if(tuple==null){
-                            tuple = new Tuple2<String,Long>(token, 1L);
+                        if(!pairs.containsKey(token)){
+                            Tuple2<String, Long> tuple = new Tuple2<String,Long>(token, 1L);
+                            pairs.put(token, tuple);
                         }
                         //if the word is already in the hashset: increase by one the number of occurences
                         else{
+                            Tuple2<String, Long> tuple = pairs.get(token);
                             tuple = new Tuple2<>(token, tuple._2() +1);
+                            pairs.put(token, tuple);
                         }
                         // update the hashset
-                        pairs.put(token, tuple);
+
                     }
+
+
                     // save the values of the hashset in an array with key-value pair of type (word,final number of occurences in a document)
                     // to return an iterator
                     ArrayList<Tuple2<String, Long>> pairs2 = new ArrayList<>(pairs.values());
@@ -142,20 +147,22 @@ public class SecondHomework {
                     Random ran = new Random();
                     int key;
                     for (String token : tokens) {
-                        Tuple2<Tuple2<Integer,String>, Long> tuple = pairs.get(token);
-                        // if the word is not already in the hashset: add new key-value pair ((random number,word),1)
-                        if(tuple==null){
-                            Tuple2<Integer, String> ne = new Tuple2<>(key = ran.nextInt(100) + 1,token);
-                            tuple = new Tuple2<Tuple2<Integer,String>,Long>(ne, 1L);
 
+                        // if the word is not already in the hashset: add new key-value pair ((random number,word),1)
+                        if(!pairs.containsKey(token)){
+                            Tuple2<Integer, String> ne = new Tuple2<>(key = ran.nextInt(1200) + 1,token);
+                            Tuple2<Tuple2<Integer,String>, Long> tuple = new Tuple2<Tuple2<Integer,String>,Long>(ne, 1L);
+                            pairs.put(token, tuple);
                         }
                         //if the word is already in the hashset: increase by one the number of occurences
                         else{
+                            Tuple2<Tuple2<Integer,String>, Long> tuple = pairs.get(token);
                             Tuple2<Integer, String> ne = new Tuple2<Integer,String>(tuple._1._1(),tuple._1._2());
                             tuple = new Tuple2<Tuple2<Integer,String>,Long>(ne, tuple._2() +1);
+                            pairs.put(token, tuple);
                         }
                         // update the hashset
-                        pairs.put(token, tuple);
+
                     }
                     // save the values of the hashset in an array with key-value pair of type ((random number,word),final number of occurences in a document)
                     // to return an iterator
@@ -220,14 +227,20 @@ public class SecondHomework {
                     String[] tokens = document.split(" ");
                     HashMap<String, Tuple2<String, Long>> pairs = new HashMap<>();
                     for (String token : tokens) {
-                        Tuple2<String, Long> tuple = pairs.get(token);
-                        if(tuple==null){
-                            tuple = new Tuple2<String,Long>(token, 1L);
+
+                        // if the word is not already in the hashset: add new key-value pair (word,1)
+                        if(!pairs.containsKey(token)){
+                            Tuple2<String, Long> tuple = new Tuple2<String,Long>(token, 1L);
+                            pairs.put(token, tuple);
                         }
+                        //if the word is already in the hashset: increase by one the number of occurences
                         else{
+                            Tuple2<String, Long> tuple = pairs.get(token);
                             tuple = new Tuple2<>(token, tuple._2() +1);
+                            pairs.put(token, tuple);
                         }
-                        pairs.put(token, tuple);
+                        // update the hashset
+
                     }
 
                     ArrayList<Tuple2<String, Long>> pairs2 = new ArrayList<>(pairs.values());
@@ -239,7 +252,7 @@ public class SecondHomework {
         }*/
         wordcounts3.count();
         end = System.currentTimeMillis();
-        System.out.println("Reducebykey w1 is: " + (end - start) + " ms");
+        System.out.println("The execution time of Improved Wordcount 1 using Reducebykey is: " + (end - start) + " ms");
 
 
 
@@ -267,7 +280,7 @@ public class SecondHomework {
         for (int j=0; j<number;j++)
         {
             Tuple2<Long,String> c=inversed.take(number).get(j);
-            System.out.println("The word " + "\"" + c._2() + "\"" +  " is repeated " + c._1() + " times");
+            System.out.println("The word " + "\"" + c._2() + "\"" +  " that is repeated " + c._1() + " times");
         }
         //System.out.println(inversed.take(number));
 
