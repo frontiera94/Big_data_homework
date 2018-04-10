@@ -135,10 +135,25 @@ public class SecondHomework {
 
         //IMPROVED WORDCOUNT 2
         docs = sc.textFile("text-sample.txt").cache(); // Read file "text-sample.txt"
-        JavaRDD<String> doc2=docs.repartition(16);  // divide the document in partition
+        JavaRDD<String> doc2=docs.repartition(7);  // divide the document in partition
         doc2.count();
         start = System.currentTimeMillis(); // start timer
-        JavaPairRDD<String, Long> wordcounts2 = doc2
+        BufferedReader reader=new BufferedReader(new FileReader("text-sample.txt"));
+        int line = 0;
+        int counter_word=0;
+        for (String x = reader.readLine(); x != null; x = reader.readLine())
+        {
+            line++;
+
+            if (line <= counter) {
+                String[] tokens = x.split(" ");
+                counter_word += tokens.length;
+            }
+
+        }
+        System.out.println("Total number of words is "+ counter_word);
+
+                JavaPairRDD<String, Long> wordcounts2 = doc2
                 // First round
                 .flatMapToPair((document) -> {             // <-- Map phase
                     String[] tokens = document.split(" ");
@@ -150,7 +165,7 @@ public class SecondHomework {
 
                         // if the word is not already in the hashset: add new key-value pair ((random number,word),1)
                         if(!pairs.containsKey(token)){
-                            Tuple2<Integer, String> ne = new Tuple2<>(key = ran.nextInt(1200) + 1,token);
+                            Tuple2<Integer, String> ne = new Tuple2<>(key = ran.nextInt(1000) + 1,token);
                             Tuple2<Tuple2<Integer,String>, Long> tuple = new Tuple2<Tuple2<Integer,String>,Long>(ne, 1L);
                             pairs.put(token, tuple);
                         }
