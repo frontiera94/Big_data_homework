@@ -29,7 +29,7 @@ public class SecondHomework {
                         .setAppName("Second homework");
         JavaSparkContext sc = new JavaSparkContext(configuration);
 
-        // Count the total numnber of words in the document
+        // Count the total number of words in the document
         JavaRDD<String> docs = sc.textFile("text-sample.txt").cache();
         long counter = docs.count();
         System.out.println("The total number of documents in the text is: " + counter);
