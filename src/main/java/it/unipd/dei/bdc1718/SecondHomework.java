@@ -29,13 +29,25 @@ public class SecondHomework {
                         .setAppName("Second homework");
         JavaSparkContext sc = new JavaSparkContext(configuration);
 
-        // Read file "text-sample.txt"
+        // Count the total numnber of words in the document
         JavaRDD<String> docs = sc.textFile("text-sample.txt").cache();
         long counter = docs.count();
         System.out.println("The total number of documents in the text is: " + counter);
+        BufferedReader reader=new BufferedReader(new FileReader("text-sample.txt"));
+        int lines = 0;
+        int counter_word = 0;
+        for (String x = reader.readLine(); x != null; x = reader.readLine())
+        {
+            lines++;
 
+            if (lines <= counter) {
+                String[] tokens = x.split(" ");
+                counter_word += tokens.length;
+            }
 
-
+        }
+        System.out.println("Total number of words is "+ counter_word);
+        final int count = counter_word;
 
         //WORDCOUNT
         long start = System.currentTimeMillis(); // start timer
@@ -59,7 +71,7 @@ public class SecondHomework {
                     return sum;
                 });
         wordcounts.count();
-        /*for (Tuple2 line : wordcounts.collect()) {
+        /*for ( Tuple2 line : wordcounts.collect()) {
                System.out.println("*" + line);
         }*/
         long end = System.currentTimeMillis(); // end timer
@@ -138,20 +150,7 @@ public class SecondHomework {
         JavaRDD<String> doc2=docs.repartition(7);  // divide the document in partition
         doc2.count();
         start = System.currentTimeMillis(); // start timer
-        BufferedReader reader=new BufferedReader(new FileReader("text-sample.txt"));
-        int line = 0;
-        int counter_word=0;
-        for (String x = reader.readLine(); x != null; x = reader.readLine())
-        {
-            line++;
 
-            if (line <= counter) {
-                String[] tokens = x.split(" ");
-                counter_word += tokens.length;
-            }
-
-        }
-        System.out.println("Total number of words is "+ counter_word);
 
                 JavaPairRDD<String, Long> wordcounts2 = doc2
                 // First round
@@ -161,11 +160,13 @@ public class SecondHomework {
                     HashMap<String, Tuple2<Tuple2<Integer,String>, Long>> pairs = new HashMap<>();
                     Random ran = new Random();
                     int key;
+                    Object key_temp;
                     for (String token : tokens) {
 
                         // if the word is not already in the hashset: add new key-value pair ((random number,word),1)
                         if(!pairs.containsKey(token)){
-                            Tuple2<Integer, String> ne = new Tuple2<>(key = ran.nextInt(1000) + 1,token);
+                            key = (int)(Math.sqrt(count));
+                            Tuple2<Integer, String> ne = new Tuple2<>( key=ran.nextInt(key) + 1,token);
                             Tuple2<Tuple2<Integer,String>, Long> tuple = new Tuple2<Tuple2<Integer,String>,Long>(ne, 1L);
                             pairs.put(token, tuple);
                         }
@@ -223,8 +224,15 @@ public class SecondHomework {
         }*/
         System.out.println("The execution time of improved Wordcount 2 is: " + (end - start) + " ms");
 
+        // Since the window is too small and not all key-value pairs are printed, we decided to print an output file in .txt format
+        // in order to see all the words.
+        /*PrintWriter out = new PrintWriter(new FileWriter("output.txt"));
+        for (Tuple2 lin : wordcounts2.collect()) {
 
+            System.out.println("*" + lin);
+            out.println(lin);
 
+        }*/
 
 
 
@@ -262,12 +270,14 @@ public class SecondHomework {
                     return pairs2.iterator();
                 }).reduceByKey((x,y) -> x+y);  // <-- Reduce phase
 
-        /*for (Tuple2 line : wordcounts4.collect()) {
+        for (Tuple2 line : wordcounts3.collect()) {
             System.out.println("*" + line);
-        }*/
+        }
         wordcounts3.count();
         end = System.currentTimeMillis();
         System.out.println("The execution time of Improved Wordcount 1 using Reducebykey is: " + (end - start) + " ms");
+
+
 
 
 
