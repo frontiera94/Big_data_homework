@@ -1,5 +1,7 @@
 package it.unipd.dei.bdc1718;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -11,6 +13,7 @@ import java.util.*;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 import org.apache.spark.api.java.StorageLevels;
+import scala.Array;
 import scala.Tuple2;
 
 
@@ -31,7 +34,7 @@ public class SecondHomeworkGabriella {
         JavaRDD<String> docs = sc.textFile("text-sample.txt").cache();
         long counter = docs.count();
         System.out.println(counter);
-        int number_partition = 16;
+        int number_partition = 64;
         int t = (int) Math.floor(counter / number_partition); // numero di elementi per ogni partizione
         Scanner s = new Scanner(new FileReader("text-sample.txt"));
         long start = System.currentTimeMillis();
@@ -54,11 +57,29 @@ public class SecondHomeworkGabriella {
         JavaRDD<String> dPartitioned = sc.parallelize(partitioned);
         JavaPairRDD<String, Long> alternativo = dPartitioned
                 .flatMapToPair((x) -> {             // <-- Map phase
+                    ArrayList<String> checked = new ArrayList();
                     String[] tokens = x.split(" ");
                     ArrayList<Tuple2<String, Long>> pairs = new ArrayList<>();
 
+
                     for (String token : tokens) {
-                        pairs.add(new Tuple2<>(token, 1L));
+
+                        if ( checked.contains(token))
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            for (int l=0; l<x.length();l++)
+
+                                for (int c=0; c<x.length(); c++)
+                                {
+                                    boolean yes=StringUtils.compare(x,token);
+                                }
+                            long occurences = StringUtils.compare(x,token);
+                            pairs.add(new Tuple2<>(token, occurences));
+                            checked.add(token);
+                        }
 
                     }
                     return pairs.iterator();
@@ -78,7 +99,7 @@ public class SecondHomeworkGabriella {
 
         }
         long end = System.currentTimeMillis();
-        System.out.println("Elapsed time 1 " + (end - start) + " ms");
+        System.out.println("Elapsed time " + (end - start) + " ms");
         //create an print writer for writing to a file
 
 
