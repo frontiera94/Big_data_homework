@@ -6,15 +6,12 @@ import scala.Tuple2;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
+import java.util.*;
 
 
 public class ThirdHomework
 {
+
 
     public static  ArrayList<Vector> kcenter(ArrayList<Vector> P, int k)
     {
@@ -22,14 +19,14 @@ public class ThirdHomework
         Double[] value=new Double[P.size()];
         Arrays.fill(value,Integer.MAX_VALUE);
         ArrayList<Double> c=new ArrayList<Double>(Arrays.asList(value));
-        ArrayList<Tuple2<Vector,Double>> PS =new ArrayList<Tuple2<Vector,Double>>;
+        ArrayList<Tuple2<Vector,Double>> PS =new ArrayList<Tuple2<Vector,Double>>();
 
         for(int i=0;i<P.size();i++)
         {
             Tuple2<Vector,Double> ne = new Tuple2<Vector,Double>( P.get(i),c.get(i));
             PS.add(ne);
         }
-        ArrayList<Tuple2<Vector,Double>> S =new ArrayList<Tuple2<Vector,Double>>;
+        ArrayList<Tuple2<Vector,Double>> S =new ArrayList<Tuple2<Vector,Double>>();
         S.add(PS.get(0));
         PS.remove(0);
         for(int i=0;i<k;i++)
@@ -43,8 +40,20 @@ public class ThirdHomework
                     PS.set(j,temp);
                     //casa
                 }
-            }
 
+
+            }
+            double max=PS.get(0)._2;
+            int i_max=0;
+           for (int m=0; m< PS.size();m++)
+           {
+               if(PS.get(m)._2>max)
+               {
+                   max = PS.get(m)._2;
+                   i_max = m;
+               }
+
+           }
         }
 
 

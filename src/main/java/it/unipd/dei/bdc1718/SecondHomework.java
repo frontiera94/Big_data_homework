@@ -13,7 +13,16 @@ import org.apache.log4j.Level;
 import org.apache.spark.api.java.StorageLevels;
 import scala.Tuple2;
 
+    // for (int i = 0; i < counter; i++){
 
+        //     for (int j=0; j< counter-s; j++ ) {
+
+
+
+         //    }
+         //    counter--;
+           //  s++;
+          //   }
 public class SecondHomework {
 
     public static void main(String[] args) throws IOException,FileNotFoundException {
