@@ -41,6 +41,7 @@ public class ThirdHomework
                 {
                     Tuple2<Vector, Double> temp = new Tuple2<>(PS.get(j)._1,dist);
                     PS.set(j,temp);
+                    //casa
                 }
             }
 
