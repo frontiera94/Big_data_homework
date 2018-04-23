@@ -26,8 +26,8 @@ public class ThirdHomework
             Tuple2<Vector,Double> ne = new Tuple2<Vector,Double>( P.get(i),c.get(i));
             PS.add(ne);
         }
-        ArrayList<Tuple2<Vector,Double>> S =new ArrayList<Tuple2<Vector,Double>>();
-        S.add(PS.get(0));
+        ArrayList<Vector> S =new ArrayList<Vector>();
+        S.add(PS.get(0)._1);
         PS.remove(0);
         for(int i=0;i<k;i++)
         {
@@ -54,9 +54,13 @@ public class ThirdHomework
                }
 
            }
+
+            Tuple2<Vector, Double> temp2 = PS.get(i_max);
+            S.add(temp2._1);
+            PS.remove(temp2);
         }
 
-
+        return S;
     }
 
 
