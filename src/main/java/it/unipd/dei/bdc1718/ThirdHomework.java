@@ -29,20 +29,18 @@ public class ThirdHomework
         ArrayList<Vector> S =new ArrayList<Vector>();
         S.add(PS.get(0)._1);
         PS.remove(0);
-        for(int i=0;i<k;i++)
+        for(int i=1;i<k;i++)
         {
             for(int j= 0; j < PS.size(); j++)
             {
-                Double dist=Vectors.sqdist(PS.get(j)._1(),S.get(S.size()-1)._1());
+                Double dist=Vectors.sqdist(PS.get(j)._1(),S.get(S.size()-1));
                 if(dist<PS.get(j)._2)
                 {
                     Tuple2<Vector, Double> temp = new Tuple2<>(PS.get(j)._1,dist);
                     PS.set(j,temp);
-                    //casa
                 }
-
-
             }
+
             double max=PS.get(0)._2;
             int i_max=0;
            for (int m=0; m< PS.size();m++)
@@ -75,15 +73,8 @@ public class ThirdHomework
 
         ArrayList<Vector> input = InputOutput.readVectorsSeq("vecs-50-10000.txt");
         //Double dist=Vectors.sqdist(input.get(9),input.get(3));
-        Set<Vector> set = new HashSet<>(input);
-        System.out.println(set);
-        Double[] value=new Double[input.size()];
-        Arrays.fill(value,Integer.MAX_VALUE);
-        ArrayList<Double> c=new ArrayList<Double>(Arrays.asList(value));
-
-        ArrayList<Tuple2<Vector,Double>> h= new ArrayList<Tuple2<Vector,Double>>();
-        HStack
-        //set.addAll(c);
+        ArrayList<Vector> centers = kcenter(input,3);
+        System.out.println(centers);
 
 
 
