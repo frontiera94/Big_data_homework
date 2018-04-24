@@ -12,6 +12,47 @@ import java.util.*;
 
 public class ThirdHomework
 {
+    /*public static ArrayList<ArrayList<Vector>> Partition(ArrayList<Vector> P,ArrayList<Vector> S)
+    {
+        ArrayList<ArrayList<Vector>> C = new ArrayList<ArrayList<Vector>>();
+
+        ArrayList<Tuple2<Vector,Double>> PS =new ArrayList<Tuple2<Vector,Double>>();
+        for(int i=0;i<P.size();i++)
+        {
+            Tuple2<Vector,Double> ne = new Tuple2<Vector,Double>( P.get(i),(double)Integer.MAX_VALUE);
+            PS.add(ne);
+        }
+
+        for(int j= 0; j < PS.size(); j++)
+        {
+            double mindist= Double.MAX_VALUE;
+            int min_index = 0;
+            ArrayList<Vector> sub_c = new ArrayList<Vector>();
+            for(int m=0;m<S.size();m++)
+            {
+                Double dist = Vectors.sqdist(PS.get(j)._1(), S.get(m));
+                if (dist < mindist)
+                {
+                    min_index = m;
+                    mindist = dist;
+                }
+            }
+
+        }
+
+        double max=PS.get(0)._2;
+        int i_max=0;
+        for (int m=0; m< PS.size();m++)
+        {
+            if(PS.get(m)._2>max)
+            {
+                max = PS.get(m)._2;
+                i_max = m;
+            }
+
+        }
+
+    }*/
 
 
     public static  ArrayList<Vector> kcenter(ArrayList<Vector> P, int k)
@@ -93,8 +134,25 @@ public class ThirdHomework
                 double pp = (PS.get(t)._2() * (Math.pow(PS.get(t)._3(), 2))) / counter;
                 prob.set(t,pp);
             }
+            Random ran = new Random();
+            double x =ran.nextDouble();
+            double sum =prob.get(0);
+            int save = 0;
+            for(int j=1;j<prob.size();j++)
+            {
+                if(x <= sum)
+                {
+                    save = j;
+                    break;
+                }
+                sum = sum + prob.get(j);
 
-            int start = 0;
+            }
+            Tuple3<Vector, Double, Double> neww = PS.get(save);
+            S.add(neww._1());
+            PS.remove(neww);
+
+            /*int start = 0;
             int[] occurences = new int[PS.size()];
             for(int e =0;e<PS.size();e++)
             {
@@ -107,8 +165,9 @@ public class ThirdHomework
             int index2 = occurences[index];
             Tuple3<Vector, Double, Double> neww = PS.get(index2);
             S.add(neww._1());
-            PS.remove(neww);
+            PS.remove(neww);*/
         }
+
         return S;
     }
 
