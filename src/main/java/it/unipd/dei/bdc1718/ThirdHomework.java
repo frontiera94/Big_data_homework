@@ -12,47 +12,6 @@ import java.util.*;
 
 public class ThirdHomework
 {
-    /*public static ArrayList<ArrayList<Vector>> Partition(ArrayList<Vector> P,ArrayList<Vector> S)
-    {
-        ArrayList<ArrayList<Vector>> C = new ArrayList<ArrayList<Vector>>();
-
-        ArrayList<Tuple2<Vector,Double>> PS =new ArrayList<Tuple2<Vector,Double>>();
-        for(int i=0;i<P.size();i++)
-        {
-            Tuple2<Vector,Double> ne = new Tuple2<Vector,Double>( P.get(i),(double)Integer.MAX_VALUE);
-            PS.add(ne);
-        }
-
-        for(int j= 0; j < PS.size(); j++)
-        {
-            double mindist= Double.MAX_VALUE;
-            int min_index = 0;
-            ArrayList<Vector> sub_c = new ArrayList<Vector>();
-            for(int m=0;m<S.size();m++)
-            {
-                Double dist = Vectors.sqdist(PS.get(j)._1(), S.get(m));
-                if (dist < mindist)
-                {
-                    min_index = m;
-                    mindist = dist;
-                }
-            }
-
-        }
-
-        double max=PS.get(0)._2;
-        int i_max=0;
-        for (int m=0; m< PS.size();m++)
-        {
-            if(PS.get(m)._2>max)
-            {
-                max = PS.get(m)._2;
-                i_max = m;
-            }
-
-        }
-
-    }*/
 
     // KCENTER METHOD USING FARTHEST-FIRST TRAVERSAL ALGORITHM
 
@@ -120,14 +79,14 @@ public class ThirdHomework
     //P = set of points
     // WP = set of weight for P
     // k = number of cluster
-    public static  ArrayList<Vector> kmeansPP(ArrayList<Vector> P, ArrayList<Double> WP, int k)
+    public static  ArrayList<Vector> kmeansPP(ArrayList<Vector> P, ArrayList<Long> WP, int k)
     {
         // create an arrayList of Tuple3 of type<point,weight,distance from S>
-        ArrayList<Tuple3<Vector,Double,Double>> PS =new ArrayList<Tuple3<Vector,Double,Double>>();
+        ArrayList<Tuple3<Vector,Long,Double>> PS =new ArrayList<Tuple3<Vector,Long,Double>>();
         for(int i=0;i<P.size();i++)
         {
             // initialize all the distances equal to + infinity
-            Tuple3<Vector,Double,Double> ne = new Tuple3<Vector,Double,Double>( P.get(i),WP.get(i),(double)Integer.MAX_VALUE);
+            Tuple3<Vector,Long,Double> ne = new Tuple3<Vector,Long,Double>( P.get(i),WP.get(i),(double)Integer.MAX_VALUE);
             PS.add(ne);
         }
 
@@ -135,19 +94,20 @@ public class ThirdHomework
         Random ran = new Random();
         int i_chosen = ran.nextInt(P.size());
         ArrayList<Vector> S =new ArrayList<Vector>();
-        ArrayList<Double> prob = new ArrayList<>(P.size());
         S.add(PS.get(i_chosen)._1());
         PS.remove(i_chosen);
 
+
         for(int i=1;i<k;i++)
         {
+            ArrayList<Double> prob = new ArrayList<>(PS.size());
             double counter = 0;
             for(int j= 0; j < PS.size(); j++)
             {
                 Double dist=Vectors.sqdist(PS.get(j)._1(),S.get(S.size()-1));
                 if(dist<PS.get(j)._3())
                 {
-                    Tuple3<Vector, Double, Double> temp = new Tuple3<>(PS.get(j)._1(),PS.get(j)._2(),dist);
+                    Tuple3<Vector, Long, Double> temp = new Tuple3<>(PS.get(j)._1(),PS.get(j)._2(),dist);
                     PS.set(j,temp);
                 }
                 counter += Math.pow(PS.get(j)._3(),2);
@@ -155,40 +115,29 @@ public class ThirdHomework
             for(int t = 0; t< PS.size(); t++)
             {
                 double pp = (PS.get(t)._2() * (Math.pow(PS.get(t)._3(), 2))) / counter;
-                prob.set(t,pp);
+                prob.add(pp);
+                //System.out.println(pp);
             }
-            Random ran = new Random();
-            double x =ran.nextDouble();
-            double sum =prob.get(0);
+            Random rand = new Random();
+            double x =rand.nextDouble();
+            //System.out.println("random " + x);
+            double sum = 0;
             int save = 0;
-            for(int j=1;j<prob.size();j++)
+            for(int j=0;j<prob.size();j++)
             {
+                sum = sum + prob.get(j);
                 if(x <= sum)
                 {
                     save = j;
                     break;
                 }
-                sum = sum + prob.get(j);
+
 
             }
-            Tuple3<Vector, Double, Double> neww = PS.get(save);
+            Tuple3<Vector, Long, Double> neww = PS.get(save);
             S.add(neww._1());
             PS.remove(neww);
 
-            /*int start = 0;
-            int[] occurences = new int[PS.size()];
-            for(int e =0;e<PS.size();e++)
-            {
-                int number = (int) (prob.get(e) * PS.size());
-                Arrays.fill(occurences,start,start+number,e);
-                start += number;
-            }
-            Random ran = new Random();
-            int index =ran.nextInt(PS.size());
-            int index2 = occurences[index];
-            Tuple3<Vector, Double, Double> neww = PS.get(index2);
-            S.add(neww._1());
-            PS.remove(neww);*/
         }
 
         return S;
@@ -220,11 +169,42 @@ public class ThirdHomework
     public static void main (String[] args) throws IOException,FileNotFoundException
     {
 
-        ArrayList<Vector> input = InputOutput.readVectorsSeq("vecs-50-10000.txt");
+        ArrayList<Vector> input = InputOutput.readVectorsSeq("prova.txt");
         //Double dist=Vectors.sqdist(input.get(9),input.get(3));
+        long start = System.currentTimeMillis();
         ArrayList<Vector> centers = kcenter(input,3);
-        System.out.println(centers);
+        long end = System.currentTimeMillis();
+        int uuuuu = centers.size();
+        System.out.println(end-start);
+        //System.out.println(centers);
 
+        long[] weight = new long[input.size()];
+        Arrays.fill(weight,1);
+        ArrayList<Long> newweight = new ArrayList();
+        for(int i=0;i<input.size();i++)
+        {
+            newweight.add((long)1.0);
+        }
+        start = System.currentTimeMillis();
+        ArrayList<Vector> means = kmeansPP(input,newweight,3);
+        end = System.currentTimeMillis();
+        int yyyyy = means.size();
+        System.out.println(end-start);
+        //System.out.println(means);
+
+        ArrayList<Tuple2<Vector,Double>> obj = kmeansObj(input,means);
+        //System.out.println(obj);
+
+        ArrayList<Vector> centers2 = kcenter(input,5);
+        ArrayList<Long> newweight2 = new ArrayList();
+        for(int i=0;i<centers2.size();i++)
+        {
+            newweight2.add((long)1.0);
+        }
+        ArrayList<Vector> means2 = kmeansPP(centers2,newweight2,3);
+        System.out.println(means2);
+        ArrayList<Tuple2<Vector,Double>> obj2 = kmeansObj(input,means2);
+        System.out.println(obj2);
 
 
     }
