@@ -5,6 +5,7 @@ import org.apache.spark.mllib.linalg.Vectors;
 import scala.Tuple2;
 import scala.Tuple3;
 
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
@@ -169,10 +170,18 @@ public class ThirdHomework
     public static void main (String[] args) throws IOException,FileNotFoundException
     {
 
-        ArrayList<Vector> input = InputOutput.readVectorsSeq("prova.txt");
+        ArrayList<Vector> input = InputOutput.readVectorsSeq("vecs-50-10000.txt");
         //Double dist=Vectors.sqdist(input.get(9),input.get(3));
         long start = System.currentTimeMillis();
-        ArrayList<Vector> centers = kcenter(input,3);
+
+        Scanner keyboard = new Scanner(System.in);
+        System.out.println("enter an integer k");
+        int k = keyboard.nextInt();
+        System.out.println("enter an integer k1, greater than before");
+        int k_1 = keyboard.nextInt();
+
+
+        ArrayList<Vector> centers = kcenter(input,k);
         long end = System.currentTimeMillis();
         int uuuuu = centers.size();
         System.out.println(end-start);
@@ -186,7 +195,7 @@ public class ThirdHomework
             newweight.add((long)1.0);
         }
         start = System.currentTimeMillis();
-        ArrayList<Vector> means = kmeansPP(input,newweight,3);
+        ArrayList<Vector> means = kmeansPP(input,newweight,k);
         end = System.currentTimeMillis();
         int yyyyy = means.size();
         System.out.println(end-start);
@@ -195,13 +204,13 @@ public class ThirdHomework
         ArrayList<Tuple2<Vector,Double>> obj = kmeansObj(input,means);
         //System.out.println(obj);
 
-        ArrayList<Vector> centers2 = kcenter(input,5);
+        ArrayList<Vector> centers2 = kcenter(input,k_1);
         ArrayList<Long> newweight2 = new ArrayList();
         for(int i=0;i<centers2.size();i++)
         {
             newweight2.add((long)1.0);
         }
-        ArrayList<Vector> means2 = kmeansPP(centers2,newweight2,3);
+        ArrayList<Vector> means2 = kmeansPP(centers2,newweight2,k);
         System.out.println(means2);
         ArrayList<Tuple2<Vector,Double>> obj2 = kmeansObj(input,means2);
         System.out.println(obj2);
