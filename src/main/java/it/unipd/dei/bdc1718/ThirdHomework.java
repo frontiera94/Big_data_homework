@@ -179,6 +179,7 @@ public class ThirdHomework
         int k = keyboard.nextInt();
         System.out.println("enter an integer k1, greater than before");
         int k_1 = keyboard.nextInt();
+        //cccc
 
 
         ArrayList<Vector> centers = kcenter(input,k);
