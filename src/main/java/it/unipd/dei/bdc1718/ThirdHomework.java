@@ -16,14 +16,17 @@ public class ThirdHomework
 
     // KCENTER METHOD USING FARTHEST-FIRST TRAVERSAL ALGORITHM
 
+    //Input:
     // P = set of points
     // k = number of centers
+
+    //Complexity:
+    //O( P+(P-S)*k+ (P-S)*k)~ O( P+P*k)~ O(P*k)
+
+
+
     public static  ArrayList<Vector> kcenter(ArrayList<Vector> P, int k)
     {
-
-        //Double[] value=new Double[P.size()];
-        //Arrays.fill(value,Integer.MAX_VALUE);
-        //ArrayList<Double> c=new ArrayList<Double>(Arrays.asList(value));
 
         // define the set P-S
         ArrayList<Tuple2<Vector,Double>> PS =new ArrayList<Tuple2<Vector,Double>>();
@@ -41,11 +44,12 @@ public class ThirdHomework
 
         for(int i=1;i<k;i++)
         {
-            // for each point c of P-S we compute the distance between the point and the last center added to S
+            // for each point j of P-S we compute the squared distance between the point j and the last center added to S
             for(int j= 0; j < PS.size(); j++)
             {
-                // compute the minimum distance between a point c of P-S and the set S
+
                 Double dist=Vectors.sqdist(PS.get(j)._1(),S.get(S.size()-1));
+                // compute the minimum squared distance between a point j of P-S and the set S
                 if(dist<PS.get(j)._2)
                 {
                     Tuple2<Vector, Double> temp = new Tuple2<>(PS.get(j)._1,dist);
@@ -53,7 +57,7 @@ public class ThirdHomework
                 }
             }
 
-            // find the point c of P-S that maximizes d(c,S)
+            // find the point m of P-S that maximizes d(m,S)
             double distmax=PS.get(0)._2;
             int i_max=0;
             for (int m=0; m < PS.size();m++)
@@ -63,23 +67,27 @@ public class ThirdHomework
                    distmax = PS.get(m)._2;
                    i_max = m;
                }
-
             }
 
-            // add the point c to the set of centers S
+            // add the point m to the set of centers S
             Tuple2<Vector, Double> temp2 = PS.get(i_max);
             S.add(temp2._1);
             PS.remove(temp2);
         }
 
-        // return the set of k centers
-        return S;
+        return S; // return the set of k centers
     }
 
-    // KMEANSPP
+    // K-MEANSPP
+    //Input:
     //P = set of points
     // WP = set of weight for P
     // k = number of cluster
+
+
+    //Complexity:
+    //O( P+(P-S)*k+ (P-S)*k)~ O( P+P*k)~ O(P*k)
+
     public static  ArrayList<Vector> kmeansPP(ArrayList<Vector> P, ArrayList<Long> WP, int k)
     {
         // create an arrayList of Tuple3 of type<point,weight,distance from S>
@@ -102,20 +110,23 @@ public class ThirdHomework
         for(int i=1;i<k;i++)
         {
             ArrayList<Double> prob = new ArrayList<>(PS.size());
-            double counter = 0;
+            double sum_dist = 0;
+            // for each point j of P-S we compute the squared distance between the point j and the last center added to S
             for(int j= 0; j < PS.size(); j++)
             {
                 Double dist=Vectors.sqdist(PS.get(j)._1(),S.get(S.size()-1));
+                // compute the minimum squared distance between a point j of P-S and the set S
                 if(dist<PS.get(j)._3())
                 {
                     Tuple3<Vector, Long, Double> temp = new Tuple3<>(PS.get(j)._1(),PS.get(j)._2(),dist);
                     PS.set(j,temp);
                 }
-                counter += Math.pow(PS.get(j)._3(),2);
+               sum_dist +=PS.get(j)._2()* PS.get(j)._3();
             }
+            //for every point in P-S compute the probability of being chosen as next center
             for(int t = 0; t< PS.size(); t++)
             {
-                double pp = (PS.get(t)._2() * (Math.pow(PS.get(t)._3(), 2))) / counter;
+                double pp = (PS.get(t)._2() * (Math.pow(PS.get(t)._3(), 2))) / sum_dist;
                 prob.add(pp);
                 //System.out.println(pp);
             }
@@ -145,7 +156,7 @@ public class ThirdHomework
     }
 
 
-    public static  ArrayList<Tuple2<Vector,Double>> kmeansObj(ArrayList<Vector> P, ArrayList<Vector> C)
+    public static  ArrayList<Tuple2<Vector,Double>> kmeansObj1(ArrayList<Vector> P, ArrayList<Vector> C)
     {
         ArrayList<Tuple2<Vector,Double>> end = new ArrayList<>();
         for(int i=0;i<P.size();i++)
@@ -163,6 +174,27 @@ public class ThirdHomework
         }
         return end;
     }
+    public static double kmeansObj2(ArrayList<Vector> P, ArrayList<Vector> C)
+    {
+
+        double sum=0;
+        for(int i=0;i<P.size();i++)
+        {
+            double dist = 0;
+            double mindist = Double.MAX_VALUE;
+            for(int j=0;j<C.size();j++)
+            {
+                dist =  Vectors.sqdist(P.get(i),C.get(j));
+                if(dist < mindist)
+                    mindist = dist;
+            }
+           sum+= dist;
+
+        }
+        sum=sum/P.size();
+        return sum;
+    }
+
 
 
 
@@ -196,25 +228,31 @@ public class ThirdHomework
             newweight.add((long)1.0);
         }
         start = System.currentTimeMillis();
-        ArrayList<Vector> means = kmeansPP(input,newweight,k);
+        ArrayList<Vector> means = kmeansPP(input,newweight,5);
         end = System.currentTimeMillis();
         int yyyyy = means.size();
         System.out.println(end-start);
         //System.out.println(means);
 
-        ArrayList<Tuple2<Vector,Double>> obj = kmeansObj(input,means);
+        ArrayList<Tuple2<Vector,Double>> obj = kmeansObj1(input,means);
         //System.out.println(obj);
 
-        ArrayList<Vector> centers2 = kcenter(input,k_1);
+        ArrayList<Vector> centers2 = kcenter(input,7);
         ArrayList<Long> newweight2 = new ArrayList();
         for(int i=0;i<centers2.size();i++)
         {
             newweight2.add((long)1.0);
         }
-        ArrayList<Vector> means2 = kmeansPP(centers2,newweight2,k);
+        ArrayList<Vector> means2 = kmeansPP(centers2,newweight2,5);
         System.out.println(means2);
-        ArrayList<Tuple2<Vector,Double>> obj2 = kmeansObj(input,means2);
+        ArrayList<Tuple2<Vector,Double>> obj2 = kmeansObj1(input,means2);
         System.out.println(obj2);
+
+        double avg1 = kmeansObj2(input,means);
+
+        double avg2 = kmeansObj2(input,means2);
+        System.out.println(" avg 1 "+ avg1);
+        System.out.println(" avg 2 "+ avg2);
 
 
     }
