@@ -206,58 +206,54 @@ public class ThirdHomework
     {
 
         ArrayList<Vector> input = InputOutput.readVectorsSeq("vecs-50-10000.txt");
-        //Double dist=Vectors.sqdist(input.get(9),input.get(3));
-        long start = System.currentTimeMillis();
 
         Scanner keyboard = new Scanner(System.in);
         System.out.println("enter an integer k");
         int k = keyboard.nextInt();
         System.out.println("enter an integer k1, greater than before");
         int k_1 = keyboard.nextInt();
-        //cccc
 
-
+        //run k-center and compute the execution time
+        long start = System.currentTimeMillis();
         ArrayList<Vector> centers = kcenter(input,k);
         long end = System.currentTimeMillis();
-        int uuuuu = centers.size();
         System.out.println(end-start);
-        //System.out.println(centers);
 
+        // initialize the weights to 1
         long[] weight = new long[input.size()];
         Arrays.fill(weight,1);
+
         ArrayList<Long> newweight = new ArrayList();
         for(int i=0;i<input.size();i++)
         {
-            newweight.add((long)1.0);
+            newweight.add((long) 1.0);
         }
+
+        //run k-meansPP and compute the execution time
         start = System.currentTimeMillis();
-        ArrayList<Vector> means = kmeansPP(input,newweight,5);
+        ArrayList<Vector> means = kmeansPP(input,newweight,k);
         end = System.currentTimeMillis();
-        int yyyyy = means.size();
         System.out.println(end-start);
-        //System.out.println(means);
 
-        ArrayList<Tuple2<Vector,Double>> obj = kmeansObj1(input,means);
-        //System.out.println(obj);
 
-        ArrayList<Vector> centers2 = kcenter(input,7);
+        //ArrayList<Tuple2<Vector,Double>> obj = kmeansObj1(input,means);
+        double avg = kmeansObj2(input,means);
+        System.out.println("Average squared distance for k-meansPP: "+ avg);
+
+        //run k-center for a larger number of centers
+        ArrayList<Vector> centers2 = kcenter(input,k_1);
+        //initialize the weights to 1
         ArrayList<Long> newweight2 = new ArrayList();
         for(int i=0;i<centers2.size();i++)
         {
             newweight2.add((long)1.0);
         }
-        ArrayList<Vector> means2 = kmeansPP(centers2,newweight2,5);
-        System.out.println(means2);
-        ArrayList<Tuple2<Vector,Double>> obj2 = kmeansObj1(input,means2);
-        System.out.println(obj2);
-
-        double avg1 = kmeansObj2(input,means);
+        //run k-meansPP on the coreset of centers computed before
+        ArrayList<Vector> means2 = kmeansPP(centers2,newweight2,k);
+       // ArrayList<Tuple2<Vector,Double>> obj2 = kmeansObj1(input,means2);
 
         double avg2 = kmeansObj2(input,means2);
-        System.out.println(" avg 1 "+ avg1);
-        System.out.println(" avg 2 "+ avg2);
-
-
+        System.out.println("Average squared distance for k-meansPP on the coreset: "+ avg2);
     }
 }
 
