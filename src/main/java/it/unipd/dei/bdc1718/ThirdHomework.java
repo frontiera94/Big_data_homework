@@ -21,7 +21,7 @@ public class ThirdHomework
     // k = number of centers
 
     //Complexity:
-    //O( P+(P-S)*k+ (P-S)*k)~ O( P+P*k)~ O(P*k)
+    //O(|P|+|P-S|*k+ |P-S|*k)~ O( |P|+|P|*k)~ O(|P|*k)
 
 
 
@@ -86,7 +86,7 @@ public class ThirdHomework
 
 
     //Complexity:
-    //O( P+(P-S)*k+ (P-S)*k)~ O( P+P*k)~ O(P*k)
+    //O( |P|+|P-S|*k+ |P-S|*k)~ O( |P|+|P|*k)~ O(|P|*k)
 
     public static  ArrayList<Vector> kmeansPP(ArrayList<Vector> P, ArrayList<Long> WP, int k)
     {
@@ -178,7 +178,7 @@ public class ThirdHomework
     // C = set of centers of P
 
     //Complexity:
-    //O( P*C)
+    //O( |P|*|C|)
 
 
     public static double kmeansObj2(ArrayList<Vector> P, ArrayList<Vector> C)
