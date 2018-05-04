@@ -124,17 +124,17 @@ public class ThirdHomework
                sum_dist +=PS.get(j)._2()* PS.get(j)._3();
             }
             //for every point in P-S compute the probability of being chosen as next center
+
             for(int t = 0; t< PS.size(); t++)
             {
-                double pp = (PS.get(t)._2() * (Math.pow(PS.get(t)._3(), 2))) / sum_dist;
+                double pp = (PS.get(t)._2() * (Math.pow(PS.get(t)._3(), 2))) / sum_dist; //vector of probabilities
                 prob.add(pp);
-                //System.out.println(pp);
             }
             Random rand = new Random();
-            double x =rand.nextDouble();
-            //System.out.println("random " + x);
+            double x =rand.nextDouble(); //draw a random number x between 0 and 1
             double sum = 0;
             int save = 0;
+            //selection of the index of the element to be added to S
             for(int j=0;j<prob.size();j++)
             {
                 sum = sum + prob.get(j);
@@ -143,16 +143,13 @@ public class ThirdHomework
                     save = j;
                     break;
                 }
-
-
             }
+            // add the point to the set of centers S
             Tuple3<Vector, Long, Double> neww = PS.get(save);
             S.add(neww._1());
             PS.remove(neww);
-
         }
-
-        return S;
+        return S; // return the set of k centers
     }
 
 
@@ -174,10 +171,20 @@ public class ThirdHomework
         }
         return end;
     }
+
+    // K-MEANSOBJ
+    //Input:
+    //P = set of points
+    // C = set of centers of P
+
+    //Complexity:
+    //O( P*C)
+
+
     public static double kmeansObj2(ArrayList<Vector> P, ArrayList<Vector> C)
     {
-
         double sum=0;
+        // for every point of P compute the minimum squared distance from its closest center
         for(int i=0;i<P.size();i++)
         {
             double dist = 0;
@@ -188,16 +195,12 @@ public class ThirdHomework
                 if(dist < mindist)
                     mindist = dist;
             }
-           sum+= dist;
+           sum+= dist; // update the sum of squared distances
 
         }
         sum=sum/P.size();
-        return sum;
+        return sum; // return the average squared distance of a point of P from its closest center
     }
-
-
-
-
 
     public static void main (String[] args) throws IOException,FileNotFoundException
     {
