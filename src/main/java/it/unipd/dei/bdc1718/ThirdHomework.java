@@ -177,7 +177,7 @@ public class ThirdHomework
     public static void main (String[] args) throws IOException,FileNotFoundException
     {
         //read the input file
-        ArrayList<Vector> input = InputOutput.readVectorsSeq("vecs-50-100000.txt");
+        ArrayList<Vector> input = InputOutput.readVectorsSeq("vecs-50-10000.txt");
 
 
         int k;
