@@ -88,58 +88,50 @@ public class ThirdHomework
     //Complexity:
     //O( |P|+|P-S|*k+ |P-S|*k)~ O( |P|+|P|*k)~ O(|P|*k)
 
-    public static  ArrayList<Vector> kmeansPP(ArrayList<Vector> P, ArrayList<Long> WP, int k)
-    {
+    public static  ArrayList<Vector> kmeansPP(ArrayList<Vector> P, ArrayList<Long> WP, int k) {
         // create an arrayList of Tuple3 of type<point,weight,distance from S>
-        ArrayList<Tuple3<Vector,Long,Double>> PS =new ArrayList<Tuple3<Vector,Long,Double>>();
-        for(int i=0;i<P.size();i++)
-        {
+        ArrayList<Tuple3<Vector, Long, Double>> PS = new ArrayList<Tuple3<Vector, Long, Double>>();
+        for (int i = 0; i < P.size(); i++) {
             // initialize all the distances equal to + infinity
-            Tuple3<Vector,Long,Double> ne = new Tuple3<Vector,Long,Double>( P.get(i),WP.get(i),(double)Integer.MAX_VALUE);
+            Tuple3<Vector, Long, Double> ne = new Tuple3<Vector, Long, Double>(P.get(i), WP.get(i), (double) Integer.MAX_VALUE);
             PS.add(ne);
         }
 
         // choose a random point from P with uniform probability
         Random ran = new Random();
         int i_chosen = ran.nextInt(P.size());
-        ArrayList<Vector> S =new ArrayList<Vector>();
+        ArrayList<Vector> S = new ArrayList<Vector>();
         S.add(PS.get(i_chosen)._1());
         PS.remove(i_chosen);
 
 
-        for(int i=1;i<k;i++)
-        {
+        for (int i = 1; i < k; i++) {
             ArrayList<Double> prob = new ArrayList<>(PS.size());
             double sum_dist = 0;
             // for each point j of P-S we compute the squared distance between the point j and the last center added to S
-            for(int j= 0; j < PS.size(); j++)
-            {
-                Double dist=Vectors.sqdist(PS.get(j)._1(),S.get(S.size()-1));
+            for (int j = 0; j < PS.size(); j++) {
+                Double dist = Vectors.sqdist(PS.get(j)._1(), S.get(S.size() - 1));
                 // compute the minimum squared distance between a point j of P-S and the set S
-                if(dist<PS.get(j)._3())
-                {
-                    Tuple3<Vector, Long, Double> temp = new Tuple3<>(PS.get(j)._1(),PS.get(j)._2(),dist);
-                    PS.set(j,temp);
+                if (dist < PS.get(j)._3()) {
+                    Tuple3<Vector, Long, Double> temp = new Tuple3<>(PS.get(j)._1(), PS.get(j)._2(), dist);
+                    PS.set(j, temp);
                 }
-               sum_dist +=PS.get(j)._2()* PS.get(j)._3();
+                sum_dist += PS.get(j)._2() * PS.get(j)._3();
             }
             //for every point in P-S compute the probability of being chosen as next center
 
-            for(int t = 0; t< PS.size(); t++)
-            {
+            for (int t = 0; t < PS.size(); t++) {
                 double pp = (PS.get(t)._2() * (Math.pow(PS.get(t)._3(), 2))) / sum_dist; //vector of probabilities
                 prob.add(pp);
             }
             Random rand = new Random();
-            double x =rand.nextDouble(); //draw a random number x between 0 and 1
+            double x = rand.nextDouble(); //draw a random number x between 0 and 1
             double sum = 0;
             int save = 0;
             //selection of the index of the element to be added to S
-            for(int j=0;j<prob.size();j++)
-            {
+            for (int j = 0; j < prob.size(); j++) {
                 sum = sum + prob.get(j);
-                if(x <= sum)
-                {
+                if (x <= sum) {
                     save = j;
                     break;
                 }
@@ -152,26 +144,6 @@ public class ThirdHomework
         return S; // return the set of k centers
     }
 
-
-    public static  ArrayList<Tuple2<Vector,Double>> kmeansObj1(ArrayList<Vector> P, ArrayList<Vector> C)
-    {
-        ArrayList<Tuple2<Vector,Double>> end = new ArrayList<>();
-        for(int i=0;i<P.size();i++)
-        {
-            double dist = 0;
-            double mindist = Double.MAX_VALUE;
-            for(int j=0;j<C.size();j++)
-            {
-                dist =  Vectors.sqdist(P.get(i),C.get(j))/P.size();
-                if(dist < mindist)
-                    mindist = dist;
-            }
-            Tuple2<Vector,Double> temp = new Tuple2<>(P.get(i),mindist);
-            end.add(temp);
-        }
-        return end;
-    }
-
     // K-MEANSOBJ
     //Input:
     //P = set of points
@@ -181,7 +153,7 @@ public class ThirdHomework
     //O( |P|*|C|)
 
 
-    public static double kmeansObj2(ArrayList<Vector> P, ArrayList<Vector> C)
+    public static double kmeansObj(ArrayList<Vector> P, ArrayList<Vector> C)
     {
         double sum=0;
         // for every point of P compute the minimum squared distance from its closest center
@@ -204,14 +176,37 @@ public class ThirdHomework
 
     public static void main (String[] args) throws IOException,FileNotFoundException
     {
+        //read the input file
+        ArrayList<Vector> input = InputOutput.readVectorsSeq("vecs-50-100000.txt");
 
-        ArrayList<Vector> input = InputOutput.readVectorsSeq("vecs-50-10000.txt");
 
-        Scanner keyboard = new Scanner(System.in);
-        System.out.println("enter an integer k");
-        int k = keyboard.nextInt();
-        System.out.println("enter an integer k1, greater than before");
-        int k_1 = keyboard.nextInt();
+        int k;
+        int k_1;
+        //acquire the two values k and k1
+        //if the values are double we approximate them
+        try
+        {
+            Scanner keyboard = new Scanner(System.in);
+            System.out.println("enter an integer k");
+            k = (int) Math.round(keyboard.nextDouble());
+            System.out.println("enter an integer k1, greater than before");
+            k_1 = (int) Math.round(keyboard.nextDouble());
+            System.out.println(k+" "+ k_1);
+        }
+        //throw exception if inserted values are not int
+        catch(Exception exc)
+        {
+            System.out.println(exc);
+            System.out.println(" One of the two  inserted number is not a number");
+            throw exc;
+        }
+        //correct the the value of k1 if it is lower than k
+        if(k_1<k)
+        {
+            k_1=k_1+k;
+            System.out.println("The insert number is lower than k, so k1 is set to k1+k");
+        }
+
 
         //run k-center and compute the execution time
         long start = System.currentTimeMillis();
@@ -236,8 +231,7 @@ public class ThirdHomework
         System.out.println(end-start);
 
 
-        //ArrayList<Tuple2<Vector,Double>> obj = kmeansObj1(input,means);
-        double avg = kmeansObj2(input,means);
+        double avg = kmeansObj(input,means);
         System.out.println("Average squared distance for k-meansPP: "+ avg);
 
         //run k-center for a larger number of centers
@@ -250,9 +244,9 @@ public class ThirdHomework
         }
         //run k-meansPP on the coreset of centers computed before
         ArrayList<Vector> means2 = kmeansPP(centers2,newweight2,k);
-       // ArrayList<Tuple2<Vector,Double>> obj2 = kmeansObj1(input,means2);
 
-        double avg2 = kmeansObj2(input,means2);
+
+        double avg2 = kmeansObj(input,means2);
         System.out.println("Average squared distance for k-meansPP on the coreset: "+ avg2);
     }
 }
