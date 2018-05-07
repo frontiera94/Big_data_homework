@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Big_data_homework22.iml" filepath="$PROJECT_DIR$/.idea/modules/Big_data_homework22.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Big_data_homework22_main.iml" filepath="$PROJECT_DIR$/.idea/modules/Big_data_homework22_main.iml" group="Big_data_homework22" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Big_data_homework22_test.iml" filepath="$PROJECT_DIR$/.idea/modules/Big_data_homework22_test.iml" group="Big_data_homework22" />
+    </modules>
+  </component>
+</project>

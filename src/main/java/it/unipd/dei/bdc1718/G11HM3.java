@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.*;
 
 
-public class ThirdHomework
+public class G11HM3
 {
 
     // KCENTER METHOD USING FARTHEST-FIRST TRAVERSAL ALGORITHM
@@ -191,7 +191,7 @@ public class ThirdHomework
             k = (int) Math.round(keyboard.nextDouble());
             System.out.println("enter an integer k1, greater than before");
             k_1 = (int) Math.round(keyboard.nextDouble());
-            System.out.println(k+" "+ k_1);
+            //System.out.println(k+" "+ k_1);
         }
         //throw exception if inserted values are not int
         catch(Exception exc)
@@ -212,7 +212,7 @@ public class ThirdHomework
         long start = System.currentTimeMillis();
         ArrayList<Vector> centers = kcenter(input,k);
         long end = System.currentTimeMillis();
-        System.out.println(end-start);
+        System.out.println("Time to execute kcenter on k centers: " + (end-start));
 
         // initialize the weights to 1
         long[] weight = new long[input.size()];
@@ -228,7 +228,7 @@ public class ThirdHomework
         start = System.currentTimeMillis();
         ArrayList<Vector> means = kmeansPP(input,newweight,k);
         end = System.currentTimeMillis();
-        System.out.println(end-start);
+        System.out.println("Time to execute kmeansPP on k centers: "+ (end-start));
 
 
         double avg = kmeansObj(input,means);
@@ -248,6 +248,10 @@ public class ThirdHomework
 
         double avg2 = kmeansObj(input,means2);
         System.out.println("Average squared distance for k-meansPP on the coreset: "+ avg2);
+
+        //We expected that kmeansObj worked better with k-meansPP on coreset than k-meansPP
+        // but trying many values of k and k_1, we observed that
+        // it is true only for very high values of k (the centers' number).
     }
 }
 
