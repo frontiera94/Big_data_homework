@@ -221,7 +221,7 @@ public class G11HM4
                 .setAppName("Preliminaries");
         JavaSparkContext sc = new JavaSparkContext(conf);
 
-        JavaRDD<Vector> v = sc.textFile("/data/vecs-50-1000000.txt").map(G11HM4::strToVector).repartition(numBlocks).cache();
+        JavaRDD<Vector> v = sc.textFile(args[0]).map(G11HM4::strToVector).repartition(numBlocks).cache();
 
         ArrayList<Vector> cc = runMapReduce(v, 20, numBlocks);
 
