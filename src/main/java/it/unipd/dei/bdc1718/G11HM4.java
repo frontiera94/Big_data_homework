@@ -151,12 +151,13 @@ public class G11HM4
 
     public static ArrayList<Vector> runMapReduce(JavaRDD<Vector> pointsrdd,Integer k, Integer numBlocks)
     {
+        long start = System.currentTimeMillis();
         ArrayList<Vector> list = new ArrayList<Vector>();
         List<Vector> list_v = pointsrdd.collect();
         list.addAll(list_v);
 
         int i1 = (int) Math.ceil(list.size()/numBlocks);
-        System.out.println(i1);
+        //System.out.println(i1);
         ArrayList<ArrayList<Vector>> sublist = new ArrayList<ArrayList<Vector>>();
         int x=0;
         for(int p=0; p<numBlocks; p++)
@@ -171,29 +172,58 @@ public class G11HM4
         }
 
 
-        ArrayList<ArrayList<Vector>> centers = new ArrayList<ArrayList<Vector>>();
+        ArrayList<Vector> coreset = new ArrayList<Vector>();
         for(int p=0; p<numBlocks; p++)
         {
-            kcenter(sublist.get(p),k);
+            ArrayList<Vector> temp = kcenter(sublist.get(p),k);
+            coreset.addAll(temp);
         }
+        long end = System.currentTimeMillis();
+        System.out.println("Time taken by coreset construction: " + (end-start));
 
-        return sublist.get(0);
+        start = System.currentTimeMillis();
+        ArrayList<Vector> fin_centers = runSequential(coreset,k);
+        end = System.currentTimeMillis();
+        System.out.println("Time taken by the computation of final solution: " + (end-start));
+
+        return fin_centers;
+
+    }
+
+    public static Double measure(ArrayList<Vector> pointslist)
+    {
+        double sum=0;
+        // for every point of P compute the minimum squared distance from its closest center
+        for(int i=0;i<pointslist.size();i++)
+        {
+            double dist = 0;
+            double mindist = Double.MAX_VALUE;
+            for(int j=0;j<pointslist.size();j++)
+            {
+                dist =  Vectors.sqdist(pointslist.get(i),pointslist.get(j));
+                if(dist < mindist)
+                    mindist = dist;
+            }
+            sum+= dist; // update the sum of squared distances
+
+        }
+        sum=sum/(2*pointslist.size());
+        return sum; // return the average squared distance of a point of P from its closest center
 
     }
 
     public static void main (String[] args) throws IOException,FileNotFoundException
     {
-        int numBlocks = 10;
+        int numBlocks = 100;
         Logger.getLogger("org").setLevel(Level.OFF);
         Logger.getLogger("akka").setLevel(Level.OFF);
         SparkConf conf = new SparkConf(true)
                 .setAppName("Preliminaries");
         JavaSparkContext sc = new JavaSparkContext(conf);
 
-        JavaRDD<Vector> v = sc.textFile("vecs-50-10000.txt").map(G11HM4::strToVector).repartition(numBlocks).cache();
+        JavaRDD<Vector> v = sc.textFile("/data/vecs-50-1000000.txt").map(G11HM4::strToVector).repartition(numBlocks).cache();
 
-        ArrayList<Vector> cc = runMapReduce(v, 5, numBlocks);
-        System.out.println(cc.size());
+        ArrayList<Vector> cc = runMapReduce(v, 20, numBlocks);
 
     }
 }
