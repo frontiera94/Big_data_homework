@@ -224,6 +224,6 @@ public class G11HM4
         JavaRDD<Vector> v = sc.textFile(args[0]).map(G11HM4::strToVector).repartition(numBlocks).cache();
 
         ArrayList<Vector> cc = runMapReduce(v, 20, numBlocks);
-
+        ///ciao
     }
 }
