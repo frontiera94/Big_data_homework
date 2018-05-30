@@ -3,14 +3,12 @@ package it.unipd.dei.bdc1718;
 import org.apache.spark.mllib.linalg.Vector;
 import org.apache.spark.mllib.linalg.Vectors;
 import scala.Tuple2;
-import scala.Tuple3;
+
 
 import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
@@ -19,6 +17,7 @@ import org.apache.log4j.Level;
 
 public class G11HM4
 {
+    //read the input file and return an instance of class Vector
     public static Vector strToVector(String str)
     {
         String[] tokens = str.split(" ");
@@ -26,9 +25,12 @@ public class G11HM4
         for (int i=0; i<tokens.length; i++) {
             data[i] = Double.parseDouble(tokens[i]);
         }
+        //trasforms the array "data" of double into an instance of class Vector
         return Vectors.dense(data);
     }
 
+    // given a points set P and a number of centers k
+    // returns the set S of k centers computed by the Farthest-First Traversal algorith
     public static  ArrayList<Vector> kcenter(ArrayList<Vector> P, int k)
     {
 
@@ -82,6 +84,8 @@ public class G11HM4
         return S; // return the set of k centers
     }
 
+    // given a points set of points and a number of centers k
+    // returns a list of k point determined by running sequential max-diversity algorithm
     public static ArrayList<Vector> runSequential(final ArrayList<Vector> points, int k)
     {
         final int n = points.size();
@@ -144,45 +148,45 @@ public class G11HM4
     }
 
 
-
-
-
-
-
+    //given a JavaRDD and a integer k and numBlocks
+    //returns a set of k centers
     public static ArrayList<Vector> runMapReduce(JavaRDD<Vector> pointsrdd,Integer k, Integer numBlocks)
     {
         long start = System.currentTimeMillis();
-        ArrayList<Vector> list = new ArrayList<Vector>();
-        List<Vector> list_v = pointsrdd.collect();
-        list.addAll(list_v);
 
-        int i1 = (int) Math.ceil(list.size()/numBlocks);
-        //System.out.println(i1);
-        ArrayList<ArrayList<Vector>> sublist = new ArrayList<ArrayList<Vector>>();
-        int x=0;
-        for(int p=0; p<numBlocks; p++)
-        {
-            if(list.size()>=(x+i1))
+        //for each partition it finds a set of k centers
+        //using the kcenter algorithm implemented before
+        JavaRDD<Vector> coreset = pointsrdd.mapPartitions((partition) -> {
+            ArrayList<Vector> temp = new ArrayList<>();
+            //transform JavaRDD<Vector> in ArrayList<Vector>
+            while (partition.hasNext())
             {
-                sublist.add( new ArrayList<Vector>(list.subList(x, x+i1)));
-                x+=i1;
+                Vector v = partition.next();
+                temp.add(v);
             }
-            else
-                sublist.add( new ArrayList<Vector>(list.subList(x, list.size())));
-        }
+            ArrayList<Vector> center = kcenter(temp, k);
+            return center.iterator();
+        });
 
 
-        ArrayList<Vector> coreset = new ArrayList<Vector>();
-        for(int p=0; p<numBlocks; p++)
+        ArrayList<Vector> list = new ArrayList<Vector>();
+        List<Vector> list_v = coreset.collect();
+        list.addAll(list_v);
+        /*int j = 0;
+        while (j <list.size())
         {
-            ArrayList<Vector> temp = kcenter(sublist.get(p),k);
-            coreset.addAll(temp);
-        }
+            System.out.println(list.get(j));
+            j++;
+        }*/
+
+
         long end = System.currentTimeMillis();
         System.out.println("Time taken by coreset construction: " + (end-start));
 
         start = System.currentTimeMillis();
-        ArrayList<Vector> fin_centers = runSequential(coreset,k);
+
+        //Find the k centers using the runSequential algorithm
+        ArrayList<Vector> fin_centers = runSequential(list,k);
         end = System.currentTimeMillis();
         System.out.println("Time taken by the computation of final solution: " + (end-start));
 
@@ -190,6 +194,8 @@ public class G11HM4
 
     }
 
+    //given a set of points
+    //return the average distance between all points in points list
     public static Double measure(ArrayList<Vector> pointslist)
     {
         double sum=0;
@@ -214,16 +220,40 @@ public class G11HM4
 
     public static void main (String[] args) throws IOException,FileNotFoundException
     {
-        int numBlocks = 100;
+        int numBlocks;
+        int k;
+
+        // acquire the value of number of partition and number of center
+        // that I have to find
+        Scanner keyboard = new Scanner(System.in);
+        System.out.println("enter an integer numBlocks");
+        numBlocks = (int) keyboard.nextDouble();
+        System.out.println("enter an integer k");
+        k = (int) keyboard.nextDouble();
+
         Logger.getLogger("org").setLevel(Level.OFF);
         Logger.getLogger("akka").setLevel(Level.OFF);
         SparkConf conf = new SparkConf(true)
                 .setAppName("Preliminaries");
         JavaSparkContext sc = new JavaSparkContext(conf);
 
-        JavaRDD<Vector> v = sc.textFile(args[0]).map(G11HM4::strToVector).repartition(numBlocks).cache();
+        JavaRDD<Vector> v;
+        ArrayList<Vector> sol_points;
+        double avg_dist;
+        for(int i =0; i<1; i++){
+            System.out.println("Results for document " + i);
 
-        ArrayList<Vector> cc = runMapReduce(v, 20, numBlocks);
-        ///ciao
+            // reads the input points of the input document
+            v = sc.textFile(args[i]).map(G11HM4::strToVector).repartition(numBlocks).cache();
+            v.count();
+
+            // use runMapReduce to find the set of final centers for one document
+            sol_points = runMapReduce(v,k, numBlocks);
+            // compute average distance for one document
+            avg_dist = measure(sol_points);
+            System.out.println("Average distance between solution points is: " + avg_dist);
+        }
+
+
     }
 }
