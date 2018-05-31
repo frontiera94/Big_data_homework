@@ -172,23 +172,17 @@ public class G11HM4
         ArrayList<Vector> list = new ArrayList<Vector>();
         List<Vector> list_v = coreset.collect();
         list.addAll(list_v);
-        /*int j = 0;
-        while (j <list.size())
-        {
-            System.out.println(list.get(j));
-            j++;
-        }*/
 
 
         long end = System.currentTimeMillis();
-        System.out.println("Time taken by coreset construction: " + (end-start));
+        System.out.println("Time taken by coreset construction: " + (end-start)+" ms");
 
         start = System.currentTimeMillis();
 
         //Find the k centers using the runSequential algorithm
         ArrayList<Vector> fin_centers = runSequential(list,k);
         end = System.currentTimeMillis();
-        System.out.println("Time taken by the computation of final solution: " + (end-start));
+        System.out.println("Time taken by the computation of final solution: " + (end-start) +" ms");
 
         return fin_centers;
 
@@ -225,11 +219,20 @@ public class G11HM4
 
         // acquire the value of number of partition and number of center
         // that I have to find
-        Scanner keyboard = new Scanner(System.in);
-        System.out.println("enter an integer numBlocks");
-        numBlocks = (int) keyboard.nextDouble();
-        System.out.println("enter an integer k");
-        k = (int) keyboard.nextDouble();
+        try
+        {
+            Scanner keyboard = new Scanner(System.in);
+            System.out.println("enter an integer numBlocks");
+            numBlocks = (int) keyboard.nextDouble();
+            System.out.println("enter an integer k");
+            k = (int) keyboard.nextDouble();
+        }
+        catch(Exception exc)
+        {
+            System.out.println(exc);
+            System.out.println(" One of the two  inserted number is not a number");
+            throw exc;
+        }
 
         Logger.getLogger("org").setLevel(Level.OFF);
         Logger.getLogger("akka").setLevel(Level.OFF);
@@ -240,19 +243,18 @@ public class G11HM4
         JavaRDD<Vector> v;
         ArrayList<Vector> sol_points;
         double avg_dist;
-        for(int i =0; i<1; i++){
-            System.out.println("Results for document " + i);
 
-            // reads the input points of the input document
-            v = sc.textFile(args[i]).map(G11HM4::strToVector).repartition(numBlocks).cache();
-            v.count();
 
-            // use runMapReduce to find the set of final centers for one document
-            sol_points = runMapReduce(v,k, numBlocks);
-            // compute average distance for one document
-            avg_dist = measure(sol_points);
-            System.out.println("Average distance between solution points is: " + avg_dist);
-        }
+        // reads the input points of the input document
+        v = sc.textFile(args[0]).map(G11HM4::strToVector).repartition(numBlocks).cache();
+        v.count();
+
+        // use runMapReduce to find the set of final centers for one document
+        sol_points = runMapReduce(v,k, numBlocks);
+        // compute average distance for one document
+        avg_dist = measure(sol_points);
+        System.out.println("Average distance between solution points is: " + avg_dist);
+
 
 
     }
